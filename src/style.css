@@ -1,0 +1,493 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  /* 主题切换时所有属性统一过渡 */
+  transition: background-color var(--transition-theme),
+              color var(--transition-theme),
+              border-color var(--transition-theme),
+              box-shadow var(--transition-theme);
+}
+
+:root {
+  --bg-app: rgba(255, 255, 255, 0.92);
+  --bg-surface: rgba(248, 248, 250, 0.95);
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-active: rgba(0, 0, 0, 0.07);
+  --bg-input: rgba(0, 0, 0, 0.04);
+  --bg-tab-active: #ffffff;
+  --bg-tab-bar: rgba(0, 0, 0, 0.06);
+  --bg-glass: rgba(255, 255, 255, 0.6);
+  --text-primary: #1a1a1a;
+  --text-secondary: #666;
+  --text-tertiary: #999;
+  --text-placeholder: #bbb;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.14);
+  --border-focus: rgba(91, 94, 244, 0.3);
+  --shadow-app: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+  --shadow-glow: 0 0 12px rgba(91, 94, 244, 0.15);
+  --accent: #5b5ef4;
+  --accent-light: rgba(91, 94, 244, 0.12);
+  --accent-text: #5b5ef4;
+  --accent-glow: rgba(91, 94, 244, 0.3);
+  --danger: #e8453c;
+  --danger-light: rgba(232, 69, 60, 0.1);
+  --success: #22c55e;
+  --success-light: rgba(34, 197, 94, 0.1);
+  --warn: #f59e0b;
+  --warn-light: rgba(245, 158, 11, 0.1);
+  --priority-high: #e8453c;
+  --priority-mid: #f59e0b;
+  --priority-low: #22c55e;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 5px;
+  --radius-lg: 16px;
+  --font: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --transition-theme: 0.35s ease;
+  --transition: 0.35s ease;
+  --transition-fast: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+[data-theme="dark"] {
+  --bg-app: rgba(28, 28, 32, 0.94);
+  --bg-surface: rgba(36, 36, 42, 0.96);
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --bg-active: rgba(255, 255, 255, 0.1);
+  --bg-input: rgba(255, 255, 255, 0.07);
+  --bg-tab-active: rgba(255, 255, 255, 0.1);
+  --bg-tab-bar: rgba(255, 255, 255, 0.06);
+  --bg-glass: rgba(40, 40, 48, 0.6);
+  --text-primary: #f0f0f2;
+  --text-secondary: #aaa;
+  --text-tertiary: #666;
+  --text-placeholder: #555;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-focus: rgba(124, 127, 245, 0.35);
+  --shadow-app: 0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 12px rgba(124, 127, 245, 0.2);
+  --accent: #7c7ff5;
+  --accent-light: rgba(124, 127, 245, 0.18);
+  --accent-text: #9a9df7;
+  --accent-glow: rgba(124, 127, 245, 0.35);
+  --danger-light: rgba(232, 69, 60, 0.15);
+  --success-light: rgba(34, 197, 94, 0.15);
+  --warn-light: rgba(245, 158, 11, 0.15);
+}
+
+/* ========== 暖纸 Sepia — 米黄纸张 + 棕墨文字 ========== */
+[data-theme="sepia"] {
+  --bg-app: rgba(250, 245, 235, 0.94);
+  --bg-surface: rgba(245, 238, 222, 0.96);
+  --bg-hover: rgba(139, 115, 85, 0.07);
+  --bg-active: rgba(139, 115, 85, 0.12);
+  --bg-input: rgba(139, 115, 85, 0.05);
+  --bg-tab-active: rgba(250, 245, 235, 0.95);
+  --bg-tab-bar: rgba(139, 115, 85, 0.06);
+  --bg-glass: rgba(250, 245, 235, 0.65);
+  --text-primary: #4a3728;
+  --text-secondary: #6b5a4a;
+  --text-tertiary: #8c7b6b;
+  --text-placeholder: #b8a898;
+  --border: rgba(139, 115, 85, 0.14);
+  --border-strong: rgba(139, 115, 85, 0.24);
+  --border-focus: rgba(155, 120, 80, 0.35);
+  --shadow-app: 0 8px 32px rgba(80, 60, 35, 0.15), 0 2px 8px rgba(80, 60, 35, 0.08);
+  --shadow-sm: 0 1px 3px rgba(80, 60, 35, 0.07);
+  --shadow-md: 0 4px 12px rgba(80, 60, 35, 0.1);
+  --shadow-lg: 0 8px 24px rgba(80, 60, 35, 0.14);
+  --shadow-glow: 0 0 12px rgba(155, 120, 80, 0.18);
+  --accent: #8b6914;
+  --accent-light: rgba(139, 105, 20, 0.12);
+  --accent-text: #8b6914;
+  --accent-glow: rgba(139, 105, 20, 0.25);
+  --danger-light: rgba(210, 65, 55, 0.1);
+  --success-light: rgba(30, 160, 80, 0.1);
+  --warn-light: rgba(200, 130, 10, 0.1);
+}
+
+/* ========== 薄荷 Mint — 微绿色调，清爽护眼 ========== */
+[data-theme="mint"] {
+  --bg-app: rgba(240, 250, 246, 0.94);
+  --bg-surface: rgba(235, 247, 241, 0.96);
+  --bg-hover: rgba(45, 130, 100, 0.06);
+  --bg-active: rgba(45, 130, 100, 0.1);
+  --bg-input: rgba(45, 130, 100, 0.04);
+  --bg-tab-active: rgba(240, 250, 246, 0.95);
+  --bg-tab-bar: rgba(45, 130, 100, 0.05);
+  --bg-glass: rgba(240, 250, 246, 0.65);
+  --text-primary: #1a3a2e;
+  --text-secondary: #3d6b55;
+  --text-tertiary: #5f8f7a;
+  --text-placeholder: #95b8a8;
+  --border: rgba(45, 130, 100, 0.12);
+  --border-strong: rgba(45, 130, 100, 0.2);
+  --border-focus: rgba(45, 160, 110, 0.35);
+  --shadow-app: 0 8px 32px rgba(30, 80, 55, 0.12), 0 2px 8px rgba(30, 80, 55, 0.06);
+  --shadow-sm: 0 1px 3px rgba(30, 80, 55, 0.06);
+  --shadow-md: 0 4px 12px rgba(30, 80, 55, 0.08);
+  --shadow-lg: 0 8px 24px rgba(30, 80, 55, 0.12);
+  --shadow-glow: 0 0 12px rgba(30, 160, 100, 0.18);
+  --accent: #0d9488;
+  --accent-light: rgba(13, 148, 136, 0.1);
+  --accent-text: #0f766e;
+  --accent-glow: rgba(13, 148, 136, 0.25);
+  --danger-light: rgba(220, 60, 50, 0.09);
+  --success-light: rgba(20, 170, 80, 0.1);
+  --warn-light: rgba(210, 140, 10, 0.09);
+}
+
+/* ========== 樱花 Sakura — 暖粉底色，温柔不刺眼 ========== */
+[data-theme="sakura"] {
+  --bg-app: rgba(253, 243, 246, 0.94);
+  --bg-surface: rgba(250, 236, 240, 0.96);
+  --bg-hover: rgba(180, 110, 130, 0.07);
+  --bg-active: rgba(180, 110, 130, 0.11);
+  --bg-input: rgba(180, 110, 130, 0.05);
+  --bg-tab-active: rgba(253, 243, 246, 0.95);
+  --bg-tab-bar: rgba(180, 110, 130, 0.06);
+  --bg-glass: rgba(253, 243, 246, 0.65);
+  --text-primary: #3d1a28;
+  --text-secondary: #6e3d50;
+  --text-tertiary: #9a6e7c;
+  --text-placeholder: #c4a4b0;
+  --border: rgba(180, 110, 130, 0.14);
+  --border-strong: rgba(180, 110, 130, 0.22);
+  --border-focus: rgba(200, 120, 140, 0.35);
+  --shadow-app: 0 8px 32px rgba(130, 60, 80, 0.12), 0 2px 8px rgba(130, 60, 80, 0.06);
+  --shadow-sm: 0 1px 3px rgba(130, 60, 80, 0.06);
+  --shadow-md: 0 4px 12px rgba(130, 60, 80, 0.08);
+  --shadow-lg: 0 8px 24px rgba(130, 60, 80, 0.12);
+  --shadow-glow: 0 0 12px rgba(220, 120, 150, 0.18);
+  --accent: #c7446a;
+  --accent-light: rgba(199, 68, 106, 0.1);
+  --accent-text: #b13d5e;
+  --accent-glow: rgba(199, 68, 106, 0.25);
+  --danger-light: rgba(210, 60, 55, 0.09);
+  --success-light: rgba(30, 160, 80, 0.09);
+  --warn-light: rgba(210, 130, 10, 0.09);
+}
+
+/* ========== 雾蓝 Haze — 灰蓝低饱和，晨雾般轻柔 ========== */
+[data-theme="haze"] {
+  --bg-app: rgba(242, 244, 248, 0.94);
+  --bg-surface: rgba(237, 240, 245, 0.96);
+  --bg-hover: rgba(100, 120, 160, 0.05);
+  --bg-active: rgba(100, 120, 160, 0.09);
+  --bg-input: rgba(100, 120, 160, 0.04);
+  --bg-tab-active: rgba(242, 244, 248, 0.95);
+  --bg-tab-bar: rgba(100, 120, 160, 0.04);
+  --bg-glass: rgba(242, 244, 248, 0.65);
+  --text-primary: #2c3345;
+  --text-secondary: #5a6580;
+  --text-tertiary: #858fa6;
+  --text-placeholder: #abb4c4;
+  --border: rgba(100, 120, 160, 0.12);
+  --border-strong: rgba(100, 120, 160, 0.18);
+  --border-focus: rgba(107, 125, 179, 0.3);
+  --shadow-app: 0 8px 32px rgba(40, 50, 70, 0.12), 0 2px 8px rgba(40, 50, 70, 0.06);
+  --shadow-sm: 0 1px 3px rgba(40, 50, 70, 0.05);
+  --shadow-md: 0 4px 12px rgba(40, 50, 70, 0.08);
+  --shadow-lg: 0 8px 24px rgba(40, 50, 70, 0.12);
+  --shadow-glow: 0 0 12px rgba(107, 125, 179, 0.16);
+  --accent: #6b7db3;
+  --accent-light: rgba(107, 125, 179, 0.1);
+  --accent-text: #5a6ca0;
+  --accent-glow: rgba(107, 125, 179, 0.22);
+  --danger-light: rgba(210, 60, 55, 0.09);
+  --success-light: rgba(30, 160, 80, 0.09);
+  --warn-light: rgba(200, 140, 10, 0.09);
+}
+
+/* ========== 奶咖 Latte — 暖咖的浅色版，奶泡般柔和 ========== */
+[data-theme="latte"] {
+  --bg-app: rgba(250, 246, 242, 0.94);
+  --bg-surface: rgba(245, 239, 232, 0.96);
+  --bg-hover: rgba(160, 120, 85, 0.06);
+  --bg-active: rgba(160, 120, 85, 0.1);
+  --bg-input: rgba(160, 120, 85, 0.04);
+  --bg-tab-active: rgba(250, 246, 242, 0.95);
+  --bg-tab-bar: rgba(160, 120, 85, 0.05);
+  --bg-glass: rgba(250, 246, 242, 0.65);
+  --text-primary: #4a3528;
+  --text-secondary: #7a6050;
+  --text-tertiary: #a08a78;
+  --text-placeholder: #c4b4a4;
+  --border: rgba(160, 120, 85, 0.14);
+  --border-strong: rgba(160, 120, 85, 0.22);
+  --border-focus: rgba(184, 132, 92, 0.35);
+  --shadow-app: 0 8px 32px rgba(80, 50, 30, 0.12), 0 2px 8px rgba(80, 50, 30, 0.06);
+  --shadow-sm: 0 1px 3px rgba(80, 50, 30, 0.06);
+  --shadow-md: 0 4px 12px rgba(80, 50, 30, 0.08);
+  --shadow-lg: 0 8px 24px rgba(80, 50, 30, 0.12);
+  --shadow-glow: 0 0 12px rgba(184, 132, 92, 0.18);
+  --accent: #b8845c;
+  --accent-light: rgba(184, 132, 92, 0.12);
+  --accent-text: #a07048;
+  --accent-glow: rgba(184, 132, 92, 0.24);
+  --danger-light: rgba(210, 60, 55, 0.09);
+  --success-light: rgba(30, 160, 80, 0.09);
+  --warn-light: rgba(200, 130, 10, 0.09);
+}
+
+/* ========== 暖咖 Espresso — 暖棕暗底，咖啡馆氛围 ========== */
+[data-theme="espresso"] {
+  --bg-app: rgba(38, 28, 22, 0.94);
+  --bg-surface: rgba(46, 35, 28, 0.96);
+  --bg-hover: rgba(200, 160, 120, 0.07);
+  --bg-active: rgba(200, 160, 120, 0.11);
+  --bg-input: rgba(200, 160, 120, 0.06);
+  --bg-tab-active: rgba(50, 38, 30, 0.9);
+  --bg-tab-bar: rgba(200, 160, 120, 0.05);
+  --bg-glass: rgba(42, 32, 25, 0.6);
+  --text-primary: #eeddcc;
+  --text-secondary: #c4a890;
+  --text-tertiary: #917a68;
+  --text-placeholder: #6b5648;
+  --border: rgba(200, 160, 120, 0.1);
+  --border-strong: rgba(200, 160, 120, 0.16);
+  --border-focus: rgba(220, 170, 130, 0.35);
+  --shadow-app: 0 8px 32px rgba(20, 10, 5, 0.55), 0 2px 8px rgba(20, 10, 5, 0.35);
+  --shadow-sm: 0 1px 3px rgba(20, 10, 5, 0.25);
+  --shadow-md: 0 4px 12px rgba(20, 10, 5, 0.35);
+  --shadow-lg: 0 8px 24px rgba(20, 10, 5, 0.45);
+  --shadow-glow: 0 0 14px rgba(220, 170, 130, 0.2);
+  --accent: #d4a574;
+  --accent-light: rgba(212, 165, 116, 0.16);
+  --accent-text: #e0be96;
+  --accent-glow: rgba(212, 165, 116, 0.28);
+  --danger-light: rgba(240, 80, 70, 0.14);
+  --success-light: rgba(74, 200, 120, 0.14);
+  --warn-light: rgba(240, 170, 40, 0.14);
+}
+
+/* ========== 主题色覆盖 ========== */
+[data-accent="blue"] {
+  --accent: #5b5ef4;
+  --accent-light: rgba(91, 94, 244, 0.12);
+  --accent-text: #5b5ef4;
+}
+[data-theme="dark"][data-accent="blue"],
+[data-theme="espresso"][data-accent="blue"] {
+  --accent: #7c7ff5;
+  --accent-light: rgba(124, 127, 245, 0.18);
+  --accent-text: #9a9df7;
+}
+
+[data-accent="purple"] {
+  --accent: #8b5cf6;
+  --accent-light: rgba(139, 92, 246, 0.12);
+  --accent-text: #8b5cf6;
+}
+[data-theme="dark"][data-accent="purple"],
+[data-theme="espresso"][data-accent="purple"] {
+  --accent: #a78bfa;
+  --accent-light: rgba(167, 139, 250, 0.18);
+  --accent-text: #a78bfa;
+}
+
+[data-accent="green"] {
+  --accent: #22c55e;
+  --accent-light: rgba(34, 197, 94, 0.12);
+  --accent-text: #16a34a;
+}
+[data-theme="dark"][data-accent="green"],
+[data-theme="espresso"][data-accent="green"] {
+  --accent: #4ade80;
+  --accent-light: rgba(74, 222, 128, 0.15);
+  --accent-text: #4ade80;
+}
+
+[data-accent="orange"] {
+  --accent: #f59e0b;
+  --accent-light: rgba(245, 158, 11, 0.12);
+  --accent-text: #d97706;
+}
+[data-theme="dark"][data-accent="orange"],
+[data-theme="espresso"][data-accent="orange"] {
+  --accent: #fbbf24;
+  --accent-light: rgba(251, 191, 36, 0.15);
+  --accent-text: #fbbf24;
+}
+
+[data-accent="pink"] {
+  --accent: #ec4899;
+  --accent-light: rgba(236, 72, 153, 0.12);
+  --accent-text: #db2777;
+}
+[data-theme="dark"][data-accent="pink"],
+[data-theme="espresso"][data-accent="pink"] {
+  --accent: #f472b6;
+  --accent-light: rgba(244, 114, 182, 0.18);
+  --accent-text: #f472b6;
+}
+
+[data-accent="red"] {
+  --accent: #ef4444;
+  --accent-light: rgba(239, 68, 68, 0.12);
+  --accent-text: #dc2626;
+}
+[data-theme="dark"][data-accent="red"],
+[data-theme="espresso"][data-accent="red"] {
+  --accent: #f87171;
+  --accent-light: rgba(248, 113, 113, 0.15);
+  --accent-text: #f87171;
+}
+
+[data-accent="cyan"] {
+  --accent: #06b6d4;
+  --accent-light: rgba(6, 182, 212, 0.12);
+  --accent-text: #0891b2;
+}
+[data-theme="dark"][data-accent="cyan"],
+[data-theme="espresso"][data-accent="cyan"] {
+  --accent: #22d3ee;
+  --accent-light: rgba(34, 211, 238, 0.15);
+  --accent-text: #22d3ee;
+}
+
+html, body, #app {
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+/* 可选中文字 */
+textarea, input, .selectable {
+  user-select: text;
+  cursor: text;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* 隐藏滚动条但仍可滚动 */
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes checkPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+  50% { box-shadow: 0 0 8px 2px var(--accent-glow); }
+}
+@keyframes ripple {
+  to { transform: scale(4); opacity: 0; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* 通用过渡类 */
+.fade-slide-enter-active { animation: fadeIn 0.25s ease; }
+.fade-slide-leave-active { animation: fadeIn 0.2s ease reverse; }
+
+/* 按钮点击反馈 */
+button:active {
+  transform: scale(0.96);
+  transition-duration: 0.08s !important;
+}
+
+/* ===== 公共右键菜单样式 ===== */
+.ctx-menu {
+  position: fixed;
+  z-index: 500;
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+  min-width: 130px;
+  animation: fadeIn 0.1s ease;
+}
+.ctx-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+.ctx-menu-item:hover {
+  background: var(--bg-hover);
+}
+.ctx-menu-item.danger {
+  color: var(--danger);
+}
+.ctx-menu-item.danger:hover {
+  background: var(--danger-light);
+}
+.ctx-menu-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 3px 4px;
+}
+
+/* ===== 公共弹出面板样式 ===== */
+.popup-panel {
+  position: absolute;
+  z-index: 200;
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+  animation: fadeIn 0.12s ease;
+  color: var(--text-primary);
+}
