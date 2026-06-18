@@ -13,7 +13,7 @@
         </svg>
         <span class="brand-name">灵签</span>
         <span class="brand-en">FloatNote</span>
-        <span class="brand-ver">V 1.1.0</span>
+        <span class="brand-ver">V 1.2.0</span>
       </div>
       <!-- 极简模式下的记事本/待办切换（放在左侧品牌位置） -->
       <div class="titlebar-tab-switch" v-if="minimalMode">
@@ -43,24 +43,9 @@
           </button>
           <SyncPanel v-if="showSyncPanel" />
         </div>
-        <!-- 透明度（弹出面板） -->
-        <div class="opacity-btn-wrap">
-          <button class="ctrl-btn" :class="{ active: showOpacityPop }" @click.stop="showOpacityPop = !showOpacityPop" title="透明度">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18V3z"/>
-            </svg>
-          </button>
-          <transition name="color-pop">
-            <div class="opacity-popup" v-if="showOpacityPop" @click.stop>
-              <span class="opacity-pop-label">透明度</span>
-              <input type="range" min="0.2" max="1" step="0.01" v-model.number="opacity" @input="applyOpacity" class="opacity-slider" />
-              <span class="opacity-val">{{ Math.round(opacity * 100) }}%</span>
-            </div>
-          </transition>
-        </div>
-        <!-- 主题切换（弹出面板） -->
+        <!-- 主题切换 + 透明度（弹出面板） -->
         <div class="theme-btn-wrap">
-          <button v-if="devMode" class="ctrl-btn" :class="{ active: showThemePicker }" @click.stop="showThemePicker = !showThemePicker" title="切换主题">
+          <button class="ctrl-btn" :class="{ active: showThemePicker }" @click.stop="showThemePicker = !showThemePicker" title="主题 / 透明度">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20"/><line x1="12" y1="2" x2="12" y2="22"/>
               <line x1="2" y1="12" x2="22" y2="12"/>
@@ -86,6 +71,14 @@
                   </svg>
                 </button>
               </div>
+              <!-- 透明度控制 -->
+              <div class="theme-opacity-row">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18V3z"/>
+                </svg>
+                <input type="range" min="0.2" max="1" step="0.01" v-model.number="opacity" @input="applyOpacity" class="opacity-slider" />
+                <span class="opacity-val">{{ Math.round(opacity * 100) }}%</span>
+              </div>
             </div>
           </transition>
         </div>
@@ -97,7 +90,7 @@
           </svg>
         </button>
         <!-- 极简模式 -->
-        <button v-if="devMode" class="ctrl-btn" :class="{ active: minimalMode }" @click="toggleMinimalMode" :title="minimalMode ? '经典模式' : '极简模式'">
+        <button class="ctrl-btn" :class="{ active: minimalMode }" @click="toggleMinimalMode" :title="minimalMode ? '经典模式' : '极简模式'">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="18" height="18" rx="2"/>
             <line x1="3" y1="9" x2="21" y2="9"/>
@@ -155,7 +148,7 @@
       <div class="tab-divider"></div>
 
       <!-- 子 Tab：可点击标签 -->
-      <div class="sub-tabs-bar">
+      <div class="sub-tabs-bar" @contextmenu.prevent="openBarCtxMenu($event)">
         <div class="sub-tabs">
           <button
             v-for="item in currentSubTabs"
@@ -163,7 +156,7 @@
             class="sub-tab"
             :class="{ active: activeSubTabId === item.id, locked: item.locked }"
             @click="switchSubTab(item.id)"
-            @contextmenu.prevent="openTabCtxMenu($event, item)"
+            @contextmenu.prevent.stop="openTabCtxMenu($event, item)"
             :style="{ '--tab-color': item.color || 'transparent' }"
           >
             <span class="sub-tab-name">
@@ -243,6 +236,23 @@
               <button class="ctx-confirm-ok" @click="deleteTabCtx">删除</button>
             </div>
           </div>
+        </div>
+      </transition>
+
+      <!-- 标签栏空位右键菜单 -->
+      <transition name="ctx-menu">
+        <div
+          class="tab-ctx-menu"
+          v-if="barCtxMenu.visible"
+          :style="{ left: barCtxMenu.x + 'px', top: barCtxMenu.y + 'px' }"
+          @click.stop
+        >
+          <button class="ctx-menu-item" @click="barCtxAdd">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            新建{{ activeTab === 'note' ? '记事本' : '待办页' }}
+          </button>
         </div>
       </transition>
     </div>
@@ -388,7 +398,6 @@ const activeTab = ref('note')
 const alwaysOnTop = ref(false)
 const isMaximized = ref(false)
 const opacity = ref(1)
-const showOpacityPop = ref(false)
 const showSyncPanel = ref(false)
 const pendingCount = ref(0)
 const isClosing = ref(false)
@@ -539,14 +548,20 @@ function restoreTrash(idx) {
     return
   }
   // Original tab trash restore
-  const list = activeTab.value === 'note' ? notebookList.value : todolistList.value
+  // 关键修复：用 tr.type 判断恢复目标，而不是当前 activeTab
+  const isBook = tr.type === 'book'
+  const list = isBook ? notebookList.value : todolistList.value
+  const storageKey = isBook ? NOTEBOOKS_KEY : TODOLISTS_KEY
   const restored = JSON.parse(tr.data)
   // Ensure no duplicate ids
   restored.id = Date.now() + Math.floor(Math.random() * 1000)
   if (restored.notes) restored.notes = []
   if (restored.todos) restored.todos = []
   list.push(restored)
-  saveTabData()
+  // 直接写入对应的 localStorage key，不走 saveTabData（它依赖 activeTab）
+  const existing = readJSON(storageKey, [])
+  existing.push({ ...restored })
+  writeJSON(storageKey, existing)
   // Remove from trash
   const allTrash = readTrash()
   const trashIdx = allTrash.findIndex(t => t.id === tr.id && t.deletedAt === tr.deletedAt)
@@ -554,6 +569,16 @@ function restoreTrash(idx) {
   saveTrash(allTrash)
   refreshTrash()
   showTrashPop.value = false
+  // 刷新侧栏列表
+  refreshSubTabs()
+  // 如果用户当前在对应的 tab 上，刷新子组件
+  if (isBook && activeTab.value === 'note') {
+    syncActiveSubTabId()
+    setTimeout(() => { if (notePanelRef.value) notePanelRef.value.reload() }, 50)
+  } else if (!isBook && activeTab.value !== 'note') {
+    syncActiveSubTabId()
+    setTimeout(() => { if (todoPanelRef.value) todoPanelRef.value.reload() }, 50)
+  }
 }
 
 function deleteTrash(idx) {
@@ -579,6 +604,9 @@ const formatDate = formatRelativeDate
 // Tab 右键菜单（使用公共模块 useContextMenu）
 const { menu: tabCtxMenu, open: openTabCtxMenuRaw, close: closeTabCtxMenuRaw } = useContextMenu(120, 80)
 const tabDeleteConfirm = ref(false)
+
+// 标签栏空位右键菜单
+const { menu: barCtxMenu, open: openBarCtxMenuRaw, close: closeBarCtxMenu } = useContextMenu(140, 40)
 
 // 响应式子 Tab 数据
 const notebookList = ref([])
@@ -643,12 +671,24 @@ function addSubTab() {
 
 // Tab 右键菜单
 function openTabCtxMenu(e, item) {
+  closeBarCtxMenu()
   openTabCtxMenuRaw(e, { item })
 }
 
 function closeTabCtxMenu() {
   closeTabCtxMenuRaw()
   tabDeleteConfirm.value = false
+}
+
+// 标签栏空位右键菜单
+function openBarCtxMenu(e) {
+  closeTabCtxMenu()
+  openBarCtxMenuRaw(e)
+}
+
+function barCtxAdd() {
+  closeBarCtxMenu()
+  addSubTab()
 }
 
 const canDeleteTab = computed(() => {
@@ -1007,12 +1047,6 @@ onMounted(async () => {
   window.addEventListener('notebooks-updated', () => { refreshSubTabs(); syncActiveSubTabId() })
   window.addEventListener('todolists-updated', () => { refreshSubTabs(); syncActiveSubTabId() })
 
-  // 监听开发者模式解锁（5连击富文本按钮）
-  window.addEventListener('dev-unlock', () => {
-    devMode.value = true
-    localStorage.setItem('sn-dev-mode', '1')
-  })
-
   // 初始分发极简模式状态
   if (minimalMode.value) {
     window.dispatchEvent(new CustomEvent('minimal-mode-change', { detail: true }))
@@ -1041,12 +1075,7 @@ onMounted(async () => {
   // 点击外部关闭弹出面板
   document.addEventListener('click', (e) => {
     closeTabCtxMenu()
-    if (showOpacityPop.value) {
-      const wrap = document.querySelector('.opacity-btn-wrap')
-      if (wrap && !wrap.contains(e.target)) {
-        showOpacityPop.value = false
-      }
-    }
+    closeBarCtxMenu()
     if (showThemePicker.value) {
       const wrap = document.querySelector('.theme-btn-wrap')
       if (wrap && !wrap.contains(e.target)) {
@@ -2271,6 +2300,46 @@ onMounted(async () => {
   right: 3px;
   color: var(--accent);
   opacity: 0.9;
+}
+
+/* ===== 主题弹窗内透明度控制行 ===== */
+.theme-opacity-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 6px 4px 2px;
+  border-top: 0.5px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.theme-opacity-row .opacity-slider {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--border-strong);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.theme-opacity-row .opacity-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.theme-opacity-row .opacity-val {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  min-width: 34px;
+  text-align: right;
 }
 
 /* color-pop 过渡复用 */

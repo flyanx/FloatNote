@@ -164,27 +164,68 @@
               </div>
             </transition>
           </div>
-          <button class="action-btn" @click="importMarkdown" title="导入 Markdown">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-          </button>
-          <button class="action-btn" @click="exportMarkdown" title="导出 Markdown">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
-          </button>
+          <!-- 导入下拉菜单 -->
+          <div class="io-btn-wrap" @click.stop>
+            <button class="action-btn" :class="{ active: showImportMenu }" @click.stop="showImportMenu = !showImportMenu" title="导入">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </button>
+            <transition name="color-pop">
+              <div class="io-dropdown" v-if="showImportMenu" @click.stop>
+                <button class="io-menu-item" @click="doImport('md')"><span class="io-fmt">.md</span>Markdown</button>
+                <button class="io-menu-item" @click="doImport('txt')"><span class="io-fmt">.txt</span>纯文本</button>
+                <button class="io-menu-item" @click="doImport('html')"><span class="io-fmt">.html</span>HTML 网页</button>
+                <button class="io-menu-item" @click="doImport('docx')"><span class="io-fmt">.docx</span>Word 文档</button>
+              </div>
+            </transition>
+          </div>
+          <!-- 导出下拉菜单 -->
+          <div class="io-btn-wrap" @click.stop>
+            <button class="action-btn" :class="{ active: showExportMenu }" @click.stop="showExportMenu = !showExportMenu" title="导出">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </button>
+            <transition name="color-pop">
+              <div class="io-dropdown" v-if="showExportMenu" @click.stop>
+                <button class="io-menu-item" @click="doExport('md')"><span class="io-fmt">.md</span>Markdown</button>
+                <button class="io-menu-item" @click="doExport('txt')"><span class="io-fmt">.txt</span>纯文本</button>
+                <button class="io-menu-item" @click="doExport('html')"><span class="io-fmt">.html</span>HTML 网页</button>
+                <button class="io-menu-item" @click="doExport('docx')"><span class="io-fmt">.docx</span>Word 文档</button>
+                <button class="io-menu-item" @click="doExport('pdf')"><span class="io-fmt">.pdf</span>PDF 文档</button>
+              </div>
+            </transition>
+          </div>
         </div>
       </div>
 
     <!-- 富文本工具栏 -->
     <div class="editor-toolbar" v-if="richMode && !minimalMode">
+      <!-- 字体大小 -->
+      <select class="tb-fontsize-select" @change="applyFontSize($event.target.value); $event.target.value = ''" title="字体大小">
+        <option value="" disabled selected>字号</option>
+        <option value="1">小 10px</option>
+        <option value="2">中 13px</option>
+        <option value="3">正常 16px</option>
+        <option value="4">大 18px</option>
+        <option value="5">超大 24px</option>
+        <option value="6">巨大 32px</option>
+        <option value="7">特大 48px</option>
+      </select>
+      <span class="tb-sep"></span>
       <button class="tb-btn" @click="execCmd('bold')" title="加粗 (Ctrl+B)"><b>B</b></button>
       <button class="tb-btn" @click="execCmd('italic')" title="斜体 (Ctrl+I)"><i>I</i></button>
       <button class="tb-btn" @click="execCmd('underline')" title="下划线 (Ctrl+U)"><u>U</u></button>
       <button class="tb-btn" @click="execCmd('strikeThrough')" title="删除线"><s>S</s></button>
+      <button class="tb-btn" @click="execCmd('removeFormat')" title="清除格式">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 7h16M6 7l1.5 13h9L18 7"/>
+          <line x1="3" y1="20" x2="21" y2="4" stroke-width="2.5"/>
+        </svg>
+      </button>
       <span class="tb-sep"></span>
       <div class="tb-list-dropdown" @click.stop>
         <button class="tb-btn" :class="{ active: listType }" @click="showListDropdown = !showListDropdown" title="列表">
@@ -315,13 +356,20 @@
       @change="handleImageSelect"
     />
 
-    <!-- 隐藏的 Markdown 导入选择器 -->
+    <!-- 隐藏的文件导入选择器 -->
     <input
-      ref="mdFileInput"
+      ref="importFileInput"
       type="file"
-      accept=".md,.markdown,text/markdown"
+      accept=".md,.markdown,.txt,.html,.htm"
       style="display:none"
-      @change="handleMdImport"
+      @change="handleFileImport"
+    />
+    <input
+      ref="importDocxInput"
+      type="file"
+      accept=".docx"
+      style="display:none"
+      @change="handleDocxImport"
     />
 
     <!-- 图片预览 -->
@@ -381,6 +429,8 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { marked } from 'marked'
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, TableRow, TableCell, Table as DocxTable, WidthType } from 'docx'
+import mammoth from 'mammoth'
 import ScreenshotOverlay from './ScreenshotOverlay.vue'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { invoke } from '@tauri-apps/api/core'
@@ -398,7 +448,10 @@ const activeBookId = ref(null)
 const saveStatus = ref('saved')
 const previewImg = ref(null)
 const fileInput = ref(null)
-const mdFileInput = ref(null)
+const importFileInput = ref(null)
+const importDocxInput = ref(null)
+const showImportMenu = ref(false)
+const showExportMenu = ref(false)
 const richMode = ref(true)
 const markdownMode = ref(false)
 const markdownPreview = ref(false)
@@ -511,19 +564,10 @@ function finishRenameBook(book) {
 }
 
 // 模式互斥：只有富文本和 Markdown 两种模式
-let _richClicks = []
 function toggleRichMode() {
   richMode.value = true
   markdownMode.value = false
   markdownPreview.value = false
-  // 5连击解锁隐藏按钮
-  const now = Date.now()
-  _richClicks = _richClicks.filter(t => now - t < 2000)
-  _richClicks.push(now)
-  if (_richClicks.length >= 5) {
-    _richClicks = []
-    window.dispatchEvent(new CustomEvent('dev-unlock'))
-  }
 }
 
 function toggleMarkdownMode() {
@@ -556,6 +600,12 @@ function getPreview(content) {
 // --- 富文本编辑功能 ---
 function execCmd(command, value = null) {
   document.execCommand(command, false, value)
+  editableDiv.value?.focus()
+}
+
+function applyFontSize(size) {
+  if (!size) return
+  document.execCommand('fontSize', false, size)
   editableDiv.value?.focus()
 }
 
@@ -776,7 +826,9 @@ function addNote() {
   if (!activeBook.value) return
   const color = NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)]
   const note = { id: generateId(), title: '', content: '', images: [], color, createdAt: Date.now() }
-  activeBook.value.notes.unshift(note)
+  // 插入到置顶笔记之后，而不是最前面
+  const pinCount = activeBook.value.notes.filter(n => n.pinned).length
+  activeBook.value.notes.splice(pinCount, 0, note)
   activeNoteId.value = note.id
   saveData()
 }
@@ -1205,52 +1257,319 @@ function onDrop(e) {
 }
 
 function importMarkdown() {
-  mdFileInput.value?.click()
+  importFileInput.value?.click()
 }
 
-function handleMdImport(e) {
+// ========== 导入功能 ==========
+let _pendingImportFormat = 'md'
+
+function doImport(fmt) {
+  showImportMenu.value = false
+  _pendingImportFormat = fmt
+  if (fmt === 'docx') {
+    importDocxInput.value?.click()
+  } else {
+    importFileInput.value?.click()
+  }
+}
+
+function handleFileImport(e) {
   const file = e.target.files?.[0]
   if (!file || !activeNote.value) { e.target.value = ''; return }
   const reader = new FileReader()
   reader.onload = (ev) => {
     const text = ev.target.result || ''
-    // Try to extract title from first # heading
-    const titleMatch = text.match(/^#\s+(.+)/m)
-    if (titleMatch && !activeNote.value.title) {
-      activeNote.value.title = titleMatch[1].trim()
+    const fmt = _pendingImportFormat
+
+    if (fmt === 'html' || file.name.endsWith('.html') || file.name.endsWith('.htm')) {
+      // HTML 导入：用 DOMParser 提取 body 内容
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(text, 'text/html')
+      const bodyHtml = doc.body?.innerHTML || text
+      // 提取标题
+      const h1 = doc.querySelector('h1')
+      if (h1 && !activeNote.value.title) {
+        activeNote.value.title = h1.textContent.trim()
+      }
+      if (richMode.value && editableDiv.value) {
+        editableDiv.value.innerHTML = bodyHtml
+        activeNote.value.content = editableDiv.value.innerText
+        activeNote.value._richContent = bodyHtml
+      } else {
+        activeNote.value.content = doc.body?.innerText || text
+      }
+    } else {
+      // Markdown / 纯文本导入
+      const titleMatch = text.match(/^#\s+(.+)/m)
+      if (titleMatch && !activeNote.value.title) {
+        activeNote.value.title = titleMatch[1].trim()
+      }
+      activeNote.value.content = text
     }
-    activeNote.value.content = text
     debounceSave()
+    showToast('已导入文件')
   }
   reader.readAsText(file)
   e.target.value = ''
 }
 
-async function exportMarkdown() {
+async function handleDocxImport(e) {
+  const file = e.target.files?.[0]
+  if (!file || !activeNote.value) { e.target.value = ''; return }
+  try {
+    const arrayBuffer = await file.arrayBuffer()
+    const result = await mammoth.convertToHtml({ arrayBuffer })
+    const html = result.value
+    // 提取标题
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(html, 'text/html')
+    const h1 = doc.querySelector('h1')
+    if (h1 && !activeNote.value.title) {
+      activeNote.value.title = h1.textContent.trim()
+    }
+    if (richMode.value && editableDiv.value) {
+      editableDiv.value.innerHTML = html
+      activeNote.value.content = editableDiv.value.innerText
+      activeNote.value._richContent = html
+    } else {
+      activeNote.value.content = doc.body?.innerText || html
+    }
+    debounceSave()
+    showToast('已导入 Word 文档')
+  } catch (err) {
+    console.error('DOCX import error:', err)
+    showToast('导入 Word 文件失败')
+  }
+  e.target.value = ''
+}
+
+// ========== 导出功能 ==========
+function getNotePlainText() {
+  if (!activeNote.value) return ''
+  if (richMode.value && editableDiv.value) {
+    return editableDiv.value.innerText || editableDiv.value.textContent || activeNote.value.content || ''
+  }
+  return activeNote.value.content || ''
+}
+
+function getNoteHtmlContent() {
+  if (!activeNote.value) return ''
+  if (richMode.value && editableDiv.value) {
+    return editableDiv.value.innerHTML || ''
+  }
+  // Markdown 模式：用 marked 渲染为 HTML
+  try {
+    return marked.parse(activeNote.value.content || '', { breaks: true, gfm: true })
+  } catch {
+    return activeNote.value.content || ''
+  }
+}
+
+function wrapHtmlTemplate(title, bodyHtml) {
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title>
+<style>
+  body { font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.7; color: #333; }
+  h1 { border-bottom: 2px solid #eee; padding-bottom: 8px; }
+  img { max-width: 100%; border-radius: 6px; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
+  th { background: #f5f5f5; }
+  code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+  pre { background: #f4f4f4; padding: 16px; border-radius: 6px; overflow-x: auto; }
+  blockquote { border-left: 3px solid #ddd; margin-left: 0; padding-left: 16px; color: #666; }
+</style>
+</head>
+<body>
+<h1>${title}</h1>
+${bodyHtml}
+</body>
+</html>`
+}
+
+function htmlToDocxParagraphs(html) {
+  const container = document.createElement('div')
+  container.innerHTML = html
+  const result = []
+
+  function nodeToRuns(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent
+      if (!text) return []
+      return [new TextRun({ text })]
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return []
+
+    const el = node
+    const childRuns = []
+    for (const child of el.childNodes) {
+      childRuns.push(...nodeToRuns(child))
+    }
+    if (childRuns.length === 0) return []
+
+    const opts = {}
+    if (el.tagName === 'STRONG' || el.tagName === 'B') opts.bold = true
+    if (el.tagName === 'EM' || el.tagName === 'I') opts.italics = true
+    if (el.tagName === 'U') opts.underline = {}
+    if (el.tagName === 'S' || el.tagName === 'STRIKE' || el.tagName === 'DEL') opts.strike = true
+    if (el.tagName === 'CODE') opts.font = 'Courier New'
+
+    if (Object.keys(opts).length > 0) {
+      return childRuns.map(r => {
+        const props = { ...r.options, ...opts }
+        return new TextRun(props)
+      })
+    }
+    return childRuns
+  }
+
+  function processBlock(el) {
+    if (el.nodeType === Node.TEXT_NODE) {
+      const text = el.textContent.trim()
+      if (text) result.push(new Paragraph({ children: [new TextRun({ text })] }))
+      return
+    }
+    if (el.nodeType !== Node.ELEMENT_NODE) return
+
+    const tag = el.tagName
+    if (/^H[1-6]$/.test(tag)) {
+      const level = parseInt(tag[1])
+      result.push(new Paragraph({
+        text: el.textContent,
+        heading: [HeadingLevel.HEADING_1, HeadingLevel.HEADING_2, HeadingLevel.HEADING_3,
+                  HeadingLevel.HEADING_4, HeadingLevel.HEADING_5, HeadingLevel.HEADING_6][level - 1],
+      }))
+    } else if (tag === 'P' || tag === 'DIV') {
+      const runs = nodeToRuns(el)
+      if (runs.length > 0) {
+        result.push(new Paragraph({ children: runs }))
+      }
+    } else if (tag === 'LI') {
+      result.push(new Paragraph({
+        children: [new TextRun({ text: el.textContent })],
+        bullet: { level: 0 },
+      }))
+    } else if (tag === 'UL' || tag === 'OL') {
+      for (const li of el.children) processBlock(li)
+    } else if (tag === 'BR') {
+      result.push(new Paragraph({ children: [new TextRun({ text: '', break: 1 })] }))
+    } else if (tag === 'TABLE') {
+      const rows = []
+      for (const tr of el.querySelectorAll('tr')) {
+        const cells = []
+        for (const td of tr.querySelectorAll('th,td')) {
+          cells.push(new TableCell({
+            children: [new Paragraph({ children: [new TextRun({ text: td.textContent })] })],
+          }))
+        }
+        if (cells.length > 0) rows.push(new TableRow({ children: cells }))
+      }
+      if (rows.length > 0) {
+        result.push(new DocxTable({ rows, width: { size: 100, type: WidthType.PERCENTAGE } }))
+      }
+    } else if (tag === 'BLOCKQUOTE') {
+      result.push(new Paragraph({
+        children: [new TextRun({ text: el.textContent, italics: true })],
+        indent: { left: 720 },
+      }))
+    } else if (tag === 'PRE') {
+      const lines = el.textContent.split('\n')
+      for (const line of lines) {
+        result.push(new Paragraph({ children: [new TextRun({ text: line || ' ', font: 'Courier New' })] }))
+      }
+    } else if (tag === 'HR') {
+      result.push(new Paragraph({ children: [new TextRun({ text: '─'.repeat(50), color: 'AAAAAA' })] }))
+    } else {
+      // 其他块级元素：递归处理子节点
+      for (const child of el.childNodes) processBlock(child)
+    }
+  }
+
+  for (const child of container.childNodes) processBlock(child)
+  if (result.length === 0) {
+    result.push(new Paragraph({ text: '' }))
+  }
+  return result
+}
+
+async function exportAsDocx() {
   if (!activeNote.value) return
   const title = activeNote.value.title || '笔记'
-  let content = activeNote.value.content || ''
-  // 如果是富文本模式，先把 HTML 转成纯文本/Markdown
-  if (richMode.value && editableDiv.value) {
-    content = editableDiv.value.innerText || editableDiv.value.textContent || content
-  }
-  // Prepend title as H1 if not already present
-  if (title && !content.startsWith('# ' + title)) {
-    content = `# ${title}\n\n${content}`
-  }
-  // 使用 Tauri 命令保存文件（弹出原生保存对话框）
+  const htmlContent = getNoteHtmlContent()
   try {
-    const { invoke } = await import('@tauri-apps/api/core')
-    const result = await invoke('save_markdown_file', { title, content })
-    if (result) {
-      showToast('已导出: ' + result)
-    }
+    const children = htmlToDocxParagraphs(htmlContent)
+    const doc = new Document({
+      creator: 'FloatNote',
+      title,
+      sections: [{ children }],
+    })
+    const blob = await Packer.toBlob(doc)
+    // 转为 base64
+    const arrayBuf = await blob.arrayBuffer()
+    const bytes = new Uint8Array(arrayBuf)
+    let binary = ''
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+    const b64 = btoa(binary)
+    const result = await invoke('save_binary_file', { title, dataBase64: b64, format: 'docx' })
+    if (result) showToast('已导出: ' + result)
+  } catch (err) {
+    console.error('DOCX export error:', err)
+    showToast('导出 Word 文件失败')
+  }
+}
+
+async function exportAsPdf() {
+  if (!activeNote.value) return
+  const title = activeNote.value.title || '笔记'
+  const htmlContent = getNoteHtmlContent()
+  const fullHtml = wrapHtmlTemplate(title, htmlContent)
+  // 打开新窗口打印
+  const printWin = window.open('', '_blank', 'width=800,height=600')
+  if (!printWin) {
+    showToast('无法打开打印窗口，请允许弹窗')
+    return
+  }
+  printWin.document.write(fullHtml)
+  printWin.document.close()
+  printWin.onload = () => {
+    printWin.focus()
+    printWin.print()
+  }
+  showToast('已打开打印/PDF 窗口')
+}
+
+async function doExport(fmt) {
+  showExportMenu.value = false
+  if (!activeNote.value) return
+  const title = activeNote.value.title || '笔记'
+
+  if (fmt === 'docx') { exportAsDocx(); return }
+  if (fmt === 'pdf') { exportAsPdf(); return }
+
+  let content = ''
+  if (fmt === 'md') {
+    content = getNotePlainText()
+    if (title && !content.startsWith('# ' + title)) content = `# ${title}\n\n${content}`
+  } else if (fmt === 'txt') {
+    content = getNotePlainText()
+    if (title) content = `${title}\n${'═'.repeat(title.length * 2)}\n\n${content}`
+  } else if (fmt === 'html') {
+    const bodyHtml = getNoteHtmlContent()
+    content = wrapHtmlTemplate(title, bodyHtml)
+  }
+
+  try {
+    const result = await invoke('save_text_file', { title, content, format: fmt })
+    if (result) showToast('已导出: ' + result)
   } catch (e) {
     console.warn('Tauri save failed, fallback to clipboard:', e)
-    // 回退：复制到剪贴板
     try {
       await navigator.clipboard.writeText(content)
-      showToast('已复制 Markdown 到剪贴板')
+      showToast('已复制到剪贴板')
     } catch (e2) {
       console.warn('Clipboard copy failed:', e2)
     }
@@ -1292,6 +1611,9 @@ function loadData() {
     notebooks.value.push(book)
   }
 
+  // 加载标志：防止 watcher 在 loadData 期间和之后异步覆盖恢复的状态
+  _isLoading = true
+
   // 恢复上次打开的笔记本
   const savedBookId = localStorage.getItem('sn-active-book')
   if (savedBookId && notebooks.value.find(b => b.id == savedBookId)) {
@@ -1300,7 +1622,13 @@ function loadData() {
     activeBookId.value = notebooks.value[0].id
   }
 
-  if (notes.value.length) activeNoteId.value = notes.value[0].id
+  // 恢复上次选中的笔记
+  const savedNoteId = localStorage.getItem('sn-active-note')
+  if (savedNoteId && notes.value.find(n => n.id == savedNoteId)) {
+    activeNoteId.value = Number(savedNoteId)
+  } else if (notes.value.length) {
+    activeNoteId.value = notes.value[0].id
+  }
 
   // 初始化富文本编辑区
   nextTick(() => {
@@ -1314,10 +1642,21 @@ function loadData() {
     richMode.value = true
     markdownMode.value = false
   }
+
+  // 用 nextTick 等待 Vue 刷新 watcher 队列后再放开，防止 watcher 异步覆盖
+  nextTick(() => {
+    _isLoading = false
+    _initialized = true
+  })
 }
 
-// 监听笔记切换，同步富文本编辑区
-watch(activeNoteId, () => {
+// 初始化守卫：防止 watcher 在 loadData() 完成之前干扰
+let _initialized = false
+let _isLoading = true
+
+// 监听笔记切换，同步富文本编辑区 + 保存选中状态
+watch(activeNoteId, (newId) => {
+  if (_initialized && !_isLoading && newId) localStorage.setItem('sn-active-note', newId)
   if (!richMode.value || !editableDiv.value) return
   nextTick(() => {
     if (activeNote.value) {
@@ -1330,6 +1669,7 @@ watch(activeNoteId, () => {
 
 // 监听笔记本切换，自动选中第一个笔记
 watch(activeBookId, () => {
+  if (!_initialized || _isLoading) return
   activeNoteId.value = notes.value.length ? notes.value[0].id : null
   localStorage.setItem('sn-active-book', activeBookId.value)
 })
@@ -1393,6 +1733,14 @@ onMounted(() => {
     if (showScreenshotMenu.value) {
       const wrap = document.querySelector('.screenshot-btn-wrap')
       if (wrap && !wrap.contains(e.target)) showScreenshotMenu.value = false
+    }
+    if (showImportMenu.value) {
+      const wraps = document.querySelectorAll('.io-btn-wrap')
+      if (wraps[0] && !wraps[0].contains(e.target)) showImportMenu.value = false
+    }
+    if (showExportMenu.value) {
+      const wraps = document.querySelectorAll('.io-btn-wrap')
+      if (wraps[1] && !wraps[1].contains(e.target)) showExportMenu.value = false
     }
     // 点击图片选中 / 点击其他取消选中
     if (richMode.value && editableDiv.value) {
@@ -1939,6 +2287,25 @@ defineExpose({
 .tb-list-dropdown {
   position: relative;
   display: flex;
+}
+
+.tb-fontsize-select {
+  height: 28px;
+  border: 0.5px solid var(--border);
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 0 4px;
+  font-family: var(--font);
+  outline: none;
+  transition: all var(--transition);
+}
+
+.tb-fontsize-select:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .tb-dropdown-arrow {
@@ -2697,5 +3064,60 @@ defineExpose({
   background: var(--bg-surface);
   border-top: 0.5px solid var(--border);
   opacity: 0.7;
+}
+
+/* ===== 导入/导出下拉菜单 ===== */
+.io-btn-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.io-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 200;
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+  min-width: 150px;
+  animation: fadeIn 0.12s ease;
+}
+
+.io-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-primary);
+  font-family: var(--font);
+  transition: background 0.15s;
+}
+
+.io-menu-item:hover {
+  background: var(--bg-hover);
+}
+
+.io-fmt {
+  display: inline-block;
+  min-width: 40px;
+  padding: 1px 5px;
+  background: var(--bg-hover);
+  border: 0.5px solid var(--border);
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: 'SF Mono', 'Courier New', monospace;
+  color: var(--text-secondary);
+  text-align: center;
+  flex-shrink: 0;
 }
 </style>
