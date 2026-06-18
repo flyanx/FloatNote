@@ -80,6 +80,53 @@ fn save_markdown_file(title: String, content: String) -> Result<String, String> 
     }
 }
 
+/// 通用文本文件保存（支持 md/txt/html 等文本格式）
+#[cfg(desktop)]
+#[tauri::command]
+fn save_text_file(title: String, content: String, format: String) -> Result<String, String> {
+    let (ext, filter_name, filter_exts): (&str, &str, &[&str]) = match format.as_str() {
+        "md" | "markdown" => ("md", "Markdown", &["md", "markdown"]),
+        "txt" | "text"    => ("txt", "纯文本", &["txt"]),
+        "html" | "htm"    => ("html", "HTML 网页", &["html", "htm"]),
+        _                 => ("md", "Markdown", &["md", "markdown"]),
+    };
+    let default_name = format!("{}.{}", title, ext);
+    let dialog = rfd::FileDialog::new()
+        .set_file_name(&default_name)
+        .add_filter(filter_name, filter_exts);
+    if let Some(path) = dialog.save_file() {
+        let path = if path.extension().is_none() { path.with_extension(ext) } else { path };
+        std::fs::write(&path, content.as_bytes()).map_err(|e| format!("写入失败: {}", e))?;
+        Ok(path.to_string_lossy().to_string())
+    } else {
+        Ok(String::new())
+    }
+}
+
+/// 二进制文件保存（支持 docx 等二进制格式，前端传 base64 编码数据）
+#[cfg(desktop)]
+#[tauri::command]
+fn save_binary_file(title: String, data_base64: String, format: String) -> Result<String, String> {
+    use base64::prelude::*;
+    let (ext, filter_name, filter_exts): (&str, &str, &[&str]) = match format.as_str() {
+        "docx" => ("docx", "Word 文档", &["docx"]),
+        "pdf"  => ("pdf", "PDF 文档", &["pdf"]),
+        _      => return Err(format!("不支持的二进制格式: {}", format)),
+    };
+    let default_name = format!("{}.{}", title, ext);
+    let dialog = rfd::FileDialog::new()
+        .set_file_name(&default_name)
+        .add_filter(filter_name, filter_exts);
+    if let Some(path) = dialog.save_file() {
+        let path = if path.extension().is_none() { path.with_extension(ext) } else { path };
+        let bytes = BASE64_STANDARD.decode(&data_base64).map_err(|e| format!("Base64 解码失败: {}", e))?;
+        std::fs::write(&path, &bytes).map_err(|e| format!("写入失败: {}", e))?;
+        Ok(path.to_string_lossy().to_string())
+    } else {
+        Ok(String::new())
+    }
+}
+
 #[cfg(desktop)]
 #[tauri::command]
 fn set_skip_taskbar(window: tauri::WebviewWindow, skip: bool) -> Result<(), String> {
@@ -266,7 +313,7 @@ fn run() {
     let builder = builder
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
-            save_markdown_file, set_skip_taskbar,
+            save_markdown_file, save_text_file, save_binary_file, set_skip_taskbar,
             capture_screen, finish_region_screenshot, cancel_region_screenshot,
             get_screenshot_data,
             supabase_request,
