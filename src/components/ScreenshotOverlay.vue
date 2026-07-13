@@ -164,7 +164,11 @@ function onImageLoad() {
   const natH = props.imgHeight
   const contW = window.innerWidth
   const contH = window.innerHeight
-  const scale = Math.min(contW / natW, contH / natH)
+
+  // 图片需要覆盖整个窗口，使用 cover 模式的等比缩放
+  const scaleW = contW / natW
+  const scaleH = contH / natH
+  const scale = Math.max(scaleW, scaleH)
   const dispW = natW * scale
   const dispH = natH * scale
   const offX = (contW - dispW) / 2
@@ -376,11 +380,11 @@ onUnmounted(() => {
   position: fixed;
   inset: 0;
   z-index: 99999;
-  background: rgba(0, 0, 0, 0.35);
+  background: #000;
   cursor: crosshair;
   outline: none;
   user-select: none;
-  animation: overlayFadeIn 0.2s ease;
+  animation: overlayFadeIn 0.15s ease;
 }
 
 @keyframes overlayFadeIn {

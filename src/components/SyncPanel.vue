@@ -38,6 +38,7 @@
     <!-- 状态消息 -->
     <div class="sync-msg" v-if="msg" :class="msgType">
       {{ msg }}
+      <button v-if="msgType === 'error' && lastAction" class="retry-btn" @click="doRetry">重试</button>
     </div>
 
     <!-- 分隔线 -->
@@ -113,6 +114,7 @@ const configUrl = ref('')
 const configKey = ref('')
 const msg = ref('')
 const msgType = ref('') // 'success' | 'error' | 'info'
+const lastAction = ref('') // 'push' | 'pull' | 'test'
 
 const dashboardUrl = computed(() => {
   const m = configUrl.value.match(/https:\/\/([^.]+)\.supabase\.co/)
@@ -135,12 +137,14 @@ function showMsg(text, type = 'info', duration = 4000) {
 }
 
 async function doPush() {
+  lastAction.value = 'push'
   showMsg('正在推送...', 'info', 0)
   const result = await pushToCloud()
   showMsg(result.message, result.success ? 'success' : 'error')
 }
 
 async function doPull() {
+  lastAction.value = 'pull'
   showMsg('正在拉取...', 'info', 0)
   const result = await pullFromCloud()
   showMsg(result.message, result.success ? 'success' : 'error')
@@ -170,6 +174,7 @@ async function doSaveConfig() {
 }
 
 async function doTest() {
+  lastAction.value = 'test'
   // 先保存当前输入的配置
   if (configUrl.value && configKey.value) {
     await saveSupabaseConfig(configUrl.value, configKey.value)
@@ -177,6 +182,12 @@ async function doTest() {
   showMsg('正在测试...', 'info', 0)
   const result = await testConnection()
   showMsg(result.message, result.success ? 'success' : 'error', 6000)
+}
+
+async function doRetry() {
+  if (lastAction.value === 'push') return doPush()
+  if (lastAction.value === 'pull') return doPull()
+  if (lastAction.value === 'test') return doTest()
 }
 </script>
 
@@ -258,8 +269,24 @@ async function doTest() {
   word-break: break-all;
 }
 .sync-msg.success { background: rgba(34,197,94,0.12); color: #22c55e; }
-.sync-msg.error  { background: rgba(232,69,60,0.12); color: #e8453c; }
+.sync-msg.error  { background: rgba(232,69,60,0.12); color: #e8453c; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .sync-msg.info   { background: rgba(74,158,255,0.1); color: #4a9eff; }
+
+.retry-btn {
+  flex-shrink: 0;
+  padding: 2px 10px;
+  border: 0.5px solid currentColor;
+  background: transparent;
+  border-radius: 4px;
+  color: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.retry-btn:hover {
+  background: currentColor;
+  color: #fff;
+}
 
 .sync-divider {
   font-size: 11px;

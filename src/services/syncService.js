@@ -28,6 +28,13 @@ const SYNC_KEYS = [
 
 // ===== Rust HTTP 代理封装 =====
 
+/** 安全提取错误消息（兼容 Tauri 各种错误对象结构） */
+function safeErrorMessage(e) {
+  if (typeof e === 'string') return e
+  if (e?.message) return e.message
+  try { return String(e) } catch { return '未知错误' }
+}
+
 /**
  * 通过 Rust 后端发起 HTTP 请求
  * @param {string} url - 请求 URL
@@ -38,14 +45,22 @@ const SYNC_KEYS = [
  */
 async function httpReq(url, method, apiKey, bodyObj = null, prefer = null) {
   const body = bodyObj ? JSON.stringify(bodyObj) : null
-  const result = await invoke('supabase_request', {
-    url,
-    method,
-    apiKey,
-    body,
-    prefer,
-  })
-  return result
+  console.log(`[sync] ${method} ${url}`)
+  try {
+    const result = await invoke('supabase_request', {
+      url,
+      method,
+      apiKey,
+      body,
+      prefer,
+    })
+    console.log(`[sync] ${method} ${url} => ok=${result.ok} status=${result.status}`)
+    return result
+  } catch (e) {
+    const err = safeErrorMessage(e)
+    console.error(`[sync] ${method} ${url} 调用失败:`, err)
+    throw new Error(err)
+  }
 }
 
 // ===== 数据收集与恢复 =====
@@ -139,8 +154,8 @@ export async function pushToCloud() {
     return { success: true, message: '推送成功' }
   } catch (e) {
     syncState.status = 'error'
-    syncState.errorMessage = e.message
-    return { success: false, message: `推送失败: ${e.message}` }
+    syncState.errorMessage = safeErrorMessage(e)
+    return { success: false, message: `推送失败: ${safeErrorMessage(e)}` }
   }
 }
 
@@ -191,8 +206,8 @@ export async function pullFromCloud() {
     return { success: true, message: `拉取成功 (云端时间: ${serverTime})` }
   } catch (e) {
     syncState.status = 'error'
-    syncState.errorMessage = e.message
-    return { success: false, message: `拉取失败: ${e.message}` }
+    syncState.errorMessage = safeErrorMessage(e)
+    return { success: false, message: `拉取失败: ${safeErrorMessage(e)}` }
   }
 }
 
@@ -224,7 +239,7 @@ export async function exportToJsonFile() {
     await writeTextFile(filePath, jsonStr)
     return { success: true, message: `已导出到: ${filePath}` }
   } catch (e) {
-    return { success: false, message: `导出失败: ${e.message}` }
+    return { success: false, message: `导出失败: ${safeErrorMessage(e)}` }
   }
 }
 
@@ -274,7 +289,7 @@ export async function importFromJsonFile() {
     const result = applyRemoteData(payload)
     return result
   } catch (e) {
-    return { success: false, message: `导入失败: ${e.message}` }
+    return { success: false, message: `导入失败: ${safeErrorMessage(e)}` }
   }
 }
 
@@ -317,6 +332,6 @@ export async function testConnection() {
       : '无'
     return { success: true, message: `连接正常！上次更新: ${updated}` }
   } catch (e) {
-    return { success: false, message: `连接失败: ${e.message}` }
+    return { success: false, message: `连接失败: ${safeErrorMessage(e)}` }
   }
 }

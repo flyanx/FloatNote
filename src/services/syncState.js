@@ -40,7 +40,7 @@ export async function saveSupabaseConfig(url, key) {
       data: JSON.stringify({ url: trimmedUrl, key: trimmedKey })
     })
   } catch (e) {
-    console.warn('文件持久化配置失败:', e)
+    console.warn('文件持久化配置失败:', e?.message || e)
   }
 }
 
@@ -61,7 +61,7 @@ export async function initSyncState() {
         syncState.configured = true
       }
     } catch (e) {
-      console.warn('从文件加载配置失败:', e)
+      console.warn('从文件加载配置失败:', e?.message || e)
     }
   } else {
     syncState.configured = true

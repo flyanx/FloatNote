@@ -13,7 +13,7 @@
 
       <div class="note-list">
         <div
-          v-for="(note, idx) in notes"
+          v-for="(note, idx) in displayedNotes"
           :key="note.id"          class="note-item"
           :class="{ active: activeNoteId === note.id, pinned: note.pinned }"
           @click="selectNote(note.id)"
@@ -37,8 +37,32 @@
             </svg>
           </button>
         </div>
+        <div v-if="displayedNotes.length === 0" class="note-empty-state">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-placeholder)" stroke-width="1.5">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          <span v-if="searchQuery">没有匹配的笔记</span>
+          <span v-else>暂无笔记，点击上方「新建」开始记录</span>
+        </div>
       </div>
-
+      <!-- 搜索栏，放在底部，更隐蔽 -->
+      <div class="sidebar-search" :class="{ active: searchQuery }">
+        <input
+          class="search-input"
+          v-model="searchQuery"
+          placeholder="搜索笔记..."
+          @input="onSearchInput"
+        />
+        <svg class="search-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <svg v-if="searchQuery" class="search-clear" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" @click="searchQuery = ''">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </div>
       <!-- 笔记右键菜单 -->
       <transition name="ctx-menu">
         <div class="note-ctx-menu" v-if="noteCtxMenu.visible" :style="{ left: noteCtxMenu.x + 'px', top: noteCtxMenu.y + 'px' }" @click.stop>
@@ -227,6 +251,19 @@
         </svg>
       </button>
       <span class="tb-sep"></span>
+      <button class="tb-btn" @click="execCmd('undo')" title="撤销 (Ctrl+Z)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="1 4 1 10 7 10"/>
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+        </svg>
+      </button>
+      <button class="tb-btn" @click="execCmd('redo')" title="重做 (Ctrl+Y)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"/>
+          <path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/>
+        </svg>
+      </button>
+      <span class="tb-sep"></span>
       <div class="tb-list-dropdown" @click.stop>
         <button class="tb-btn" :class="{ active: listType }" @click="showListDropdown = !showListDropdown" title="列表">
           <svg v-if="listType === 'ol'" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -265,7 +302,12 @@
         </transition>
       </div>
       <span class="tb-sep"></span>
-      <button class="tb-btn" @click="insertLink" title="插入链接">🔗</button>
+      <button class="tb-btn" @click="insertLink" title="插入链接">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+      </button>
       <label class="tb-btn tb-color-btn" title="字体颜色">
         <input type="color" class="tb-color" @change="execCmd('foreColor', $event.target.value)" />
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -273,7 +315,13 @@
           <line x1="7" y1="16" x2="17" y2="16"/>
         </svg>
       </label>
-      <button class="tb-btn" @click="insertImageToEditor" title="插入图片">🖼️</button>
+      <button class="tb-btn" @click="insertImageToEditor" title="插入图片">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+      </button>
       <button class="tb-btn" @click="insertTable" title="插入表格">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -293,9 +341,14 @@
       contenteditable="true"
       @input="onRichInput"
       @paste="onPaste"
+      @compositionstart="isComposing = true"
+      @compositionend="isComposing = false; onRichInput()"
       @keydown.ctrl.b.prevent="execCmd('bold')"
       @keydown.ctrl.i.prevent="execCmd('italic')"
       @keydown.ctrl.u.prevent="execCmd('underline')"
+      @keydown.ctrl.shift.v.prevent="pastePlainText"
+      @dragover.prevent="onDragOver"
+      @drop.prevent="onDrop"
     ></div>
 
     <!-- Markdown 模式 -->
@@ -322,7 +375,9 @@
     </div>
 
       <div class="editor-footer">
-        <span class="char-count">{{ charCount }} 字</span>
+        <span class="char-count" title="字符 / 词 / 行 | 阅读时长">
+          {{ stats.chars }} 字 / {{ stats.words }} 词 / {{ stats.lines }} 行 · 约 {{ stats.readTime }}
+        </span>
         <span class="save-status" :class="saveStatus">{{ saveStatusText }}</span>
       </div>
 
@@ -382,15 +437,7 @@
       <div class="panel-toast" v-if="toast.show">{{ toast.message }}</div>
     </transition>
 
-    <!-- 截图覆盖层 -->
-    <ScreenshotOverlay
-      v-if="screenshotOverlay.show"
-      :data-url="screenshotOverlay.dataUrl"
-      :img-width="screenshotOverlay.imgWidth"
-      :img-height="screenshotOverlay.imgHeight"
-      @done="onScreenshotDone"
-      @cancel="onScreenshotCancel"
-    />
+    <!-- 截图窗口由 Rust 后端独立创建，不在主窗口内渲染 -->
 
     <!-- 富文本图片工具条 -->
     <div class="img-resize-toolbar" v-if="selectedImg" :style="imgToolbarStyle">
@@ -429,9 +476,8 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { marked } from 'marked'
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, TableRow, TableCell, Table as DocxTable, WidthType } from 'docx'
-import mammoth from 'mammoth'
-import ScreenshotOverlay from './ScreenshotOverlay.vue'
+// docx 和 mammoth 体积大（~6MB 源码），改为动态导入，只在导出/导入 Word 时加载
+// 截图窗口由 Rust 后端独立创建，主窗口不再导入 ScreenshotOverlay
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { invoke } from '@tauri-apps/api/core'
 import { readJSON, writeJSON } from '../utils/storage.js'
@@ -462,12 +508,13 @@ const sidebarVisible = ref(localStorage.getItem('sn-sidebar-visible') !== '0')
 const showBookMenu = ref(false)
 const editingBookId = ref(null)
 const isDragOver = ref(false)
+const isComposing = ref(false) // 跟踪 IME 输入法组合状态
 const noteColors = NOTE_COLORS
 
 // 截图相关
 const showScreenshotMenu = ref(false)
 const screenshotHotkey = ref(localStorage.getItem('sn-screenshot-hotkey') || 'CommandOrControl+Shift+A')
-const screenshotOverlay = ref({ show: false, dataUrl: '', imgWidth: 0, imgHeight: 0 })
+// 截图窗口由 Rust 后端独立创建，主窗口不再维护截图覆盖层状态
 let _lastScreenshotMode = 'direct' // 用于快捷键触发
 
 // 图片工具条
@@ -484,9 +531,45 @@ let saveTimer = null
 
 const activeBook = computed(() => notebooks.value.find(b => b.id === activeBookId.value) || null)
 const notes = computed(() => activeBook.value?.notes || [])
+
+// 搜索关键词
+const searchQuery = ref('')
+
+// 显示笔记列表：置顶在前，其余按创建时间倒序，支持搜索过滤
+const displayedNotes = computed(() => {
+  const sorted = [...notes.value].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1
+    if (!a.pinned && b.pinned) return 1
+    return (b.createdAt || 0) - (a.createdAt || 0)
+  })
+  const q = searchQuery.value.trim().toLowerCase()
+  if (!q) return sorted
+  return sorted.filter(n => {
+    const title = (n.title || '').toLowerCase()
+    if (title.includes(q)) return true
+    const content = (n.content || '').toLowerCase().replace(/<[^>]+>/g, '')
+    return content.includes(q)
+  })
+})
+
 const activeNoteId = ref(null)
-const activeNote = computed(() => notes.value.find(n => n.id === activeNoteId.value) || null)
-const charCount = computed(() => activeNote.value ? (activeNote.value.content || '').length : 0)
+const activeNote = computed(() => displayedNotes.value.find(n => n.id === activeNoteId.value) || null)
+const stats = computed(() => {
+  if (!activeNote.value) return { chars: 0, words: 0, lines: 0, readTime: '0 分钟' }
+  const content = activeNote.value.content || ''
+  // 去除 HTML 标签后的纯文本
+  const plain = content.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ')
+  const chars = plain.length
+  // 中文字符 + 英文单词数
+  const cnChars = (plain.match(/[\u4e00-\u9fa5]/g) || []).length
+  const enWords = (plain.match(/[a-zA-Z]+/g) || []).length
+  const words = cnChars + enWords
+  const lines = plain.split('\n').length
+  // 阅读时长：按每分钟 300 字计算
+  const mins = Math.max(1, Math.ceil(words / 300))
+  const readTime = mins < 60 ? `${mins} 分钟` : `${Math.floor(mins/60)} 小时 ${mins%60} 分钟`
+  return { chars, words, lines, readTime }
+})
 
 const saveStatusText = computed(() => saveStatus.value === 'saving' ? '保存中...' : '已保存')
 const markdownHtml = computed(() => {
@@ -667,7 +750,49 @@ function insertImageToEditor() {
   input.click()
 }
 
-// 粘贴处理——支持从剪贴板粘贴截图
+// 清理从外部粘贴的 HTML——移除所有行内样式、class、id、事件属性，保留基础结构
+function sanitizePastedHtml(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const allowedTags = new Set([
+    'p','br','div','b','strong','i','em','u','s','strike','del',
+    'a','ul','ol','li','h1','h2','h3','h4','h5','h6',
+    'img','table','tr','td','th','thead','tbody',
+    'pre','code','blockquote','hr','span','sub','sup'
+  ])
+  // querySelectorAll 返回静态 NodeList，循环中修改 DOM 安全
+  const all = doc.body.querySelectorAll('*')
+  all.forEach(el => {
+    const tag = el.tagName.toLowerCase()
+    if (!allowedTags.has(tag)) {
+      // 替换不允许的标签为其子节点（如 font、meta 等）
+      el.replaceWith(...el.childNodes)
+      return
+    }
+    // 移除所有干扰属性
+    el.removeAttribute('style')
+    el.removeAttribute('class')
+    el.removeAttribute('id')
+    Array.from(el.attributes).forEach(attr => {
+      const n = attr.name
+      if (n.startsWith('data-') || n.startsWith('on') || n === 'face' || n === 'size' || n === 'color') {
+        el.removeAttribute(n)
+      }
+    })
+    // 特定标签保留必要属性
+    if (tag === 'a') {
+      const href = el.getAttribute('href')
+      Array.from(el.attributes).forEach(attr => { if (attr.name !== 'href') el.removeAttribute(attr.name) })
+    } else if (tag === 'img') {
+      const src = el.getAttribute('src'), alt = el.getAttribute('alt')
+      Array.from(el.attributes).forEach(attr => {
+        if (attr.name !== 'src' && attr.name !== 'alt') el.removeAttribute(attr.name)
+      })
+    }
+  })
+  return doc.body.innerHTML
+}
+
+// 粘贴处理——支持截图粘贴 + 外部网页内容清理
 function onPaste(e) {
   const items = e.clipboardData?.items
   if (!items) return
@@ -690,6 +815,25 @@ function onPaste(e) {
       return
     }
   }
+  // 清理 HTML 粘贴（来自网页复制等）
+  const html = e.clipboardData?.getData('text/html')
+  if (html) {
+    e.preventDefault()
+    const cleaned = sanitizePastedHtml(html)
+    if (cleaned.trim()) {
+      document.execCommand('insertHTML', false, cleaned)
+    } else {
+      const text = e.clipboardData?.getData('text/plain')
+      if (text) document.execCommand('insertText', false, text)
+    }
+    if (activeNote.value) {
+      activeNote.value.content = editableDiv.value?.innerHTML || ''
+      activeNote.value._richContent = editableDiv.value?.innerHTML || ''
+      debounceSave()
+    }
+    return
+  }
+  // 纯文本由浏览器默认处理
 }
 
 function insertTable() {
@@ -825,12 +969,31 @@ function closeNoteCtxMenu() {
 function addNote() {
   if (!activeBook.value) return
   const color = NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)]
-  const note = { id: generateId(), title: '', content: '', images: [], color, createdAt: Date.now() }
+  const now = Date.now()
+  const note = { id: generateId(), title: '', content: '', images: [], color, createdAt: now, updatedAt: now }
   // 插入到置顶笔记之后，而不是最前面
   const pinCount = activeBook.value.notes.filter(n => n.pinned).length
   activeBook.value.notes.splice(pinCount, 0, note)
   activeNoteId.value = note.id
   saveData()
+}
+
+function onSearchInput() {
+  // 搜索过滤由 displayedNotes computed 自动处理，此处仅占位（v-model 已绑定）
+}
+
+function pastePlainText() {
+  if (!editableDiv.value) return
+  navigator.clipboard.readText().then(text => {
+    if (text) {
+      document.execCommand('insertText', false, text)
+      if (activeNote.value) {
+        activeNote.value.content = editableDiv.value.innerHTML
+        activeNote.value._richContent = editableDiv.value.innerHTML
+        debounceSave()
+      }
+    }
+  }).catch(() => {})
 }
 
 function setNoteColor(color) {
@@ -873,123 +1036,36 @@ function insertImage() {
 }
 
 // ===== 截图功能 =====
-let _savedWindowSize = null  // 保存窗口原始尺寸
-let _savedWindowPos = null   // 保存窗口原始位置
+// 截图窗口由 Rust 后端独立创建（非透明、无边框、全屏、置顶）
+// 主窗口只需要：隐藏自己 → 调用 capture_screen → Rust 自动创建截图窗口并恢复主窗口
 
 async function startScreenshot(mode) {
   showScreenshotMenu.value = false
   _lastScreenshotMode = mode
   const win = getCurrentWebviewWindow()
 
-  // 立即开始截图（异步不等待）
-  const capturePromise = invoke('capture_screen').catch(e => {
-    throw new Error('截图失败: ' + e)
-  })
-
-  // 同时保存窗口状态（并行）
-  let hidePromise = null
+  // 隐藏后截图：先隐藏主窗口，等待 DWM 刷新
   if (mode === 'hide') {
-    hidePromise = (async () => {
-      try {
-        await win.hide()
-        await new Promise(r => setTimeout(r, 250))  // DWM 刷新等待
-      } catch (e) {
-        console.warn('隐藏窗口失败:', e)
-      }
-    })()
+    try {
+      await win.hide()
+      await new Promise(r => setTimeout(r, 300))
+    } catch (e) {
+      console.warn('隐藏窗口失败:', e)
+    }
   }
 
-  // 保存当前窗口位置和尺寸（并行）
+  // 截图（Rust 后端会自动创建独立的截图全屏窗口）
   try {
-    const [pos, size] = await Promise.all([win.outerPosition(), win.outerSize()])
-    _savedWindowPos = pos
-    _savedWindowSize = size
-  } catch {
-    _savedWindowPos = null
-    _savedWindowSize = null
-  }
-
-  // 等待 hide 完成（如果是 hide 模式）
-  if (hidePromise) await hidePromise
-
-  // 等待截图完成
-  try {
-    await capturePromise
+    await invoke('capture_screen')
   } catch (e) {
-    console.error('截图失败:', e)
-    showToast(e.message)
+    const err = typeof e === 'string' ? e : (e?.message || '未知错误')
+    console.error('截图失败:', err)
+    showToast('截图失败: ' + err)
+    // 截图失败时恢复主窗口
     if (mode === 'hide') {
       try { await win.show(); await win.setFocus() } catch {}
     }
-    return
   }
-
-  // 获取截图数据
-  let screenshotData
-  try {
-    screenshotData = await invoke('get_screenshot_data')
-  } catch (e) {
-    console.error('获取截图数据失败:', e)
-    showToast('获取截图数据失败: ' + e)
-    if (mode === 'hide') {
-      try { await win.show(); await win.setFocus() } catch {}
-    }
-    return
-  }
-
-  // 最大化主窗口（覆盖整个屏幕）
-  try {
-    if (mode === 'hide') {
-      await win.show()
-    }
-    await win.setAlwaysOnTop(true)
-    await win.maximize()
-    await win.setFocus()
-  } catch (e) {
-    console.error('最大化窗口失败:', e)
-  }
-
-  // 显示截图覆盖层
-  screenshotOverlay.value = {
-    show: true,
-    dataUrl: screenshotData.dataUrl,
-    imgWidth: screenshotData.imgWidth,
-    imgHeight: screenshotData.imgHeight,
-  }
-}
-
-async function onScreenshotDone() {
-  // 关闭覆盖层
-  screenshotOverlay.value = { show: false, dataUrl: '', imgWidth: 0, imgHeight: 0 }
-  // 恢复窗口
-  await restoreWindowAfterScreenshot()
-}
-
-async function onScreenshotCancel() {
-  // 关闭覆盖层
-  screenshotOverlay.value = { show: false, dataUrl: '', imgWidth: 0, imgHeight: 0 }
-  // 恢复窗口
-  await restoreWindowAfterScreenshot()
-}
-
-async function restoreWindowAfterScreenshot() {
-  const win = getCurrentWebviewWindow()
-  try {
-    await win.unmaximize()
-    await win.setAlwaysOnTop(false)
-    // 恢复原始尺寸和位置
-    if (_savedWindowSize) {
-      await win.setSize(_savedWindowSize)
-    }
-    if (_savedWindowPos) {
-      await win.setPosition(_savedWindowPos)
-    }
-    await win.setFocus()
-  } catch (e) {
-    console.warn('恢复窗口失败:', e)
-  }
-  _savedWindowSize = null
-  _savedWindowPos = null
 }
 
 // 快捷键捕获
@@ -1207,10 +1283,13 @@ function removeImage(idx) {
   debounceSave()
 }
 
-// 拖拽图片进编辑区
+// 拖拽文件进编辑区
 function onDragOver(e) {
-  const hasImage = [...(e.dataTransfer.items || [])].some(item => item.type.startsWith('image/'))
-  if (hasImage) isDragOver.value = true
+  const hasFiles = (e.dataTransfer.items || []).length > 0
+  if (hasFiles) {
+    e.dataTransfer.dropEffect = 'copy'
+    isDragOver.value = true
+  }
 }
 
 function onDragLeave(e) {
@@ -1222,38 +1301,62 @@ function onDragLeave(e) {
 function onDrop(e) {
   isDragOver.value = false
   if (!activeNote.value) return
-  const files = [...(e.dataTransfer.files || [])].filter(f => f.type.startsWith('image/'))
+  const files = [...(e.dataTransfer.files || [])]
   if (!files.length) return
 
-  if (richMode.value && editableDiv.value) {
-    // 富文本模式：将图片插入到编辑器光标处
-    // 先把焦点给编辑区（拖拽后焦点可能丢失）
-    editableDiv.value.focus()
-    files.forEach(file => {
-      const reader = new FileReader()
-      reader.onload = (ev) => {
-        const imgHtml = `<img src="${ev.target.result}" style="max-width:100%;border-radius:6px;margin:4px 0;display:block;" />`
-        document.execCommand('insertHTML', false, imgHtml)
-        if (activeNote.value) {
-          activeNote.value.content = editableDiv.value?.innerHTML || ''
-          activeNote.value._richContent = editableDiv.value?.innerHTML || ''
+  const imgFiles = files.filter(f => f.type.startsWith('image/'))
+  const textFiles = files.filter(f => f.type.startsWith('text/') || !f.type)
+  const total = files.length
+
+  if (imgFiles.length) {
+    if (richMode.value && editableDiv.value) {
+      editableDiv.value.focus()
+      imgFiles.forEach(file => {
+        const reader = new FileReader()
+        reader.onload = (ev) => {
+          const imgHtml = `<img src="${ev.target.result}" style="max-width:100%;border-radius:6px;margin:4px 0;display:block;" />`
+          document.execCommand('insertHTML', false, imgHtml)
+          if (activeNote.value) {
+            activeNote.value.content = editableDiv.value?.innerHTML || ''
+            activeNote.value._richContent = editableDiv.value?.innerHTML || ''
+            debounceSave()
+          }
+        }
+        reader.readAsDataURL(file)
+      })
+    } else {
+      imgFiles.forEach(file => {
+        const reader = new FileReader()
+        reader.onload = (ev) => {
+          if (!activeNote.value.images) activeNote.value.images = []
+          activeNote.value.images.push(ev.target.result)
           debounceSave()
         }
-      }
-      reader.readAsDataURL(file)
-    })
-  } else {
-    // Markdown 模式：附件形式
-    files.forEach(file => {
+        reader.readAsDataURL(file)
+      })
+    }
+  }
+
+  if (textFiles.length) {
+    textFiles.forEach(file => {
       const reader = new FileReader()
       reader.onload = (ev) => {
-        if (!activeNote.value.images) activeNote.value.images = []
-        activeNote.value.images.push(ev.target.result)
+        const text = ev.target.result
+        if (richMode.value && editableDiv.value) {
+          editableDiv.value.focus()
+          document.execCommand('insertText', false, text)
+          activeNote.value.content = editableDiv.value?.innerHTML || ''
+          activeNote.value._richContent = editableDiv.value?.innerHTML || ''
+        } else {
+          activeNote.value.content = (activeNote.value.content || '') + text
+        }
         debounceSave()
       }
-      reader.readAsDataURL(file)
+      reader.readAsText(file)
     })
   }
+
+  showToast(`已导入 ${total} 个文件`)
 }
 
 function importMarkdown() {
@@ -1276,6 +1379,7 @@ function doImport(fmt) {
 function handleFileImport(e) {
   const file = e.target.files?.[0]
   if (!file || !activeNote.value) { e.target.value = ''; return }
+  showToast('正在导入...')
   const reader = new FileReader()
   reader.onload = (ev) => {
     const text = ev.target.result || ''
@@ -1316,9 +1420,11 @@ function handleFileImport(e) {
 async function handleDocxImport(e) {
   const file = e.target.files?.[0]
   if (!file || !activeNote.value) { e.target.value = ''; return }
+  showToast('正在导入...')
   try {
+    const mammoth = await import('mammoth')
     const arrayBuffer = await file.arrayBuffer()
-    const result = await mammoth.convertToHtml({ arrayBuffer })
+    const result = await mammoth.default.convertToHtml({ arrayBuffer })
     const html = result.value
     // 提取标题
     const parser = new DOMParser()
@@ -1391,7 +1497,9 @@ ${bodyHtml}
 </html>`
 }
 
-function htmlToDocxParagraphs(html) {
+// docx 动态导入，只在导出 Word 时加载
+async function htmlToDocxParagraphs(html, docx) {
+  const { Paragraph, TextRun, HeadingLevel, TableRow, TableCell, Table: DocxTable, WidthType } = docx
   const container = document.createElement('div')
   container.innerHTML = html
   const result = []
@@ -1445,9 +1553,7 @@ function htmlToDocxParagraphs(html) {
       }))
     } else if (tag === 'P' || tag === 'DIV') {
       const runs = nodeToRuns(el)
-      if (runs.length > 0) {
-        result.push(new Paragraph({ children: runs }))
-      }
+      if (runs.length > 0) result.push(new Paragraph({ children: runs }))
     } else if (tag === 'LI') {
       result.push(new Paragraph({
         children: [new TextRun({ text: el.textContent })],
@@ -1484,15 +1590,12 @@ function htmlToDocxParagraphs(html) {
     } else if (tag === 'HR') {
       result.push(new Paragraph({ children: [new TextRun({ text: '─'.repeat(50), color: 'AAAAAA' })] }))
     } else {
-      // 其他块级元素：递归处理子节点
       for (const child of el.childNodes) processBlock(child)
     }
   }
 
   for (const child of container.childNodes) processBlock(child)
-  if (result.length === 0) {
-    result.push(new Paragraph({ text: '' }))
-  }
+  if (result.length === 0) result.push(new Paragraph({ text: '' }))
   return result
 }
 
@@ -1501,14 +1604,14 @@ async function exportAsDocx() {
   const title = activeNote.value.title || '笔记'
   const htmlContent = getNoteHtmlContent()
   try {
-    const children = htmlToDocxParagraphs(htmlContent)
-    const doc = new Document({
+    const docx = await import('docx')
+    const children = await htmlToDocxParagraphs(htmlContent, docx)
+    const doc = new docx.Document({
       creator: 'FloatNote',
       title,
       sections: [{ children }],
     })
-    const blob = await Packer.toBlob(doc)
-    // 转为 base64
+    const blob = await docx.Packer.toBlob(doc)
     const arrayBuf = await blob.arrayBuffer()
     const bytes = new Uint8Array(arrayBuf)
     let binary = ''
@@ -1545,10 +1648,11 @@ async function exportAsPdf() {
 async function doExport(fmt) {
   showExportMenu.value = false
   if (!activeNote.value) return
+  showToast('正在导出...')
   const title = activeNote.value.title || '笔记'
 
-  if (fmt === 'docx') { exportAsDocx(); return }
-  if (fmt === 'pdf') { exportAsPdf(); return }
+  if (fmt === 'docx') { await exportAsDocx(); return }
+  if (fmt === 'pdf') { await exportAsPdf(); return }
 
   let content = ''
   if (fmt === 'md') {
@@ -1577,6 +1681,16 @@ async function doExport(fmt) {
 }
 
 function debounceSave() {
+  if (activeNote.value) {
+    activeNote.value.updatedAt = Date.now()
+    // 标题自动生成：输入法组合中不触发，避免拼音字母被截取为标题
+    if (!isComposing.value && (!activeNote.value.title || !activeNote.value.title.trim())) {
+      const plain = (activeNote.value.content || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim()
+      if (plain) {
+        activeNote.value.title = plain.slice(0, 20) + (plain.length > 20 ? '…' : '')
+      }
+    }
+  }
   saveStatus.value = 'saving'
   clearTimeout(saveTimer)
   saveTimer = setTimeout(() => { saveData(); saveStatus.value = 'saved' }, 800)
@@ -2046,10 +2160,92 @@ defineExpose({
   transform: scale(0.97);
 }
 
+.sidebar-search {
+  position: relative;
+  padding: 4px 6px 6px;
+  border-top: 0.5px solid var(--border);
+  opacity: 0.5;
+  transition: opacity var(--transition-fast);
+}
+
+.sidebar-search:hover,
+.sidebar-search.active {
+  opacity: 1;
+}
+
+.sidebar-search .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-placeholder);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 4px 8px 4px 22px;
+  border: 0.5px solid transparent;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-primary);
+  font-family: var(--font);
+  outline: none;
+  transition: all var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.search-input::placeholder {
+  color: transparent;
+}
+
+.sidebar-search:hover .search-input::placeholder,
+.sidebar-search.active .search-input::placeholder {
+  color: var(--text-placeholder);
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  background: var(--bg-input);
+}
+
+.search-input:focus ~ .search-icon {
+  color: var(--accent);
+}
+
+.search-clear {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+}
+
+.search-clear:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
 .note-list {
   flex: 1;
   overflow-y: auto;
   padding: 6px 4px;
+}
+
+.note-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 8px;
+  color: var(--text-placeholder);
+  font-size: 11px;
+  text-align: center;
 }
 
 .note-item {
@@ -2249,8 +2445,8 @@ defineExpose({
 .editor-toolbar {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 7px 12px;
+  gap: 3px;
+  padding: 6px 10px;
   border-bottom: 0.5px solid var(--border);
   background: var(--bg-surface);
   flex-shrink: 0;
@@ -2259,24 +2455,28 @@ defineExpose({
 
 .tb-btn {
   min-width: 28px;
-  height: 28px;
+  height: 26px;
   border: none;
   background: transparent;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-secondary);
   font-size: 12px;
-  padding: 0 6px;
-  transition: all var(--transition);
+  padding: 0 5px;
+  transition: all var(--transition-fast);
   font-family: var(--font);
 }
 
 .tb-btn:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
+}
+
+.tb-btn:active {
+  transform: scale(0.92);
 }
 
 .tb-btn.active {
@@ -2290,22 +2490,28 @@ defineExpose({
 }
 
 .tb-fontsize-select {
-  height: 28px;
+  height: 26px;
   border: 0.5px solid var(--border);
   background: transparent;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   font-size: 11px;
   color: var(--text-secondary);
   padding: 0 4px;
   font-family: var(--font);
   outline: none;
-  transition: all var(--transition);
+  transition: all var(--transition-fast);
 }
 
 .tb-fontsize-select:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.tb-fontsize-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-light);
 }
 
 .tb-dropdown-arrow {
@@ -2355,9 +2561,10 @@ defineExpose({
 
 .tb-sep {
   width: 1px;
-  height: 16px;
+  height: 14px;
   background: var(--border-strong);
-  margin: 0 2px;
+  margin: 0 3px;
+  flex-shrink: 0;
 }
 
 .tb-color-btn {
@@ -2392,15 +2599,15 @@ defineExpose({
   flex: 1;
   border: none;
   outline: none;
-  font-size: 13px;
-  line-height: 1.75;
+  font-size: 14px;
+  line-height: 1.8;
   overflow-y: auto;
   color: var(--text-primary);
   background: var(--bg-app);
-  padding: 12px 14px;
+  padding: 14px 16px;
   font-family: var(--font);
-  overflow-y: auto;
   word-break: break-word;
+  transition: background-color var(--transition-theme), color var(--transition-theme);
 }
 
 /* FIX: 深色模式下确保 contenteditable 子元素继承正确颜色 */
@@ -2417,20 +2624,84 @@ defineExpose({
   box-shadow: inset 0 0 0 1px var(--accent-light);
 }
 
-/* 确保富文本内容的样式 */
+/* 富文本内容基础排版 */
+.note-content-editable p {
+  margin: 6px 0;
+  min-height: 1.4em;
+}
+
 .note-content-editable ul, .note-content-editable ol {
   padding-left: 24px;
-  margin: 4px 0;
+  margin: 6px 0;
 }
 
 .note-content-editable ul li,
 .note-content-editable ol li {
-  padding-left: 2px;
+  padding-left: 4px;
+  margin: 3px 0;
+  line-height: 1.7;
 }
 
 .note-content-editable a {
   color: var(--accent);
   text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.note-content-editable a:hover {
+  opacity: 0.85;
+}
+
+.note-content-editable h1 {
+  font-size: 20px; font-weight: 700; margin: 16px 0 8px;
+  border-bottom: 1px solid var(--border); padding-bottom: 6px;
+}
+.note-content-editable h2 { font-size: 17px; font-weight: 700; margin: 14px 0 6px; }
+.note-content-editable h3 { font-size: 15px; font-weight: 600; margin: 12px 0 4px; }
+.note-content-editable h4 { font-size: 14px; font-weight: 600; margin: 10px 0 4px; }
+
+.note-content-editable blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 6px 12px;
+  margin: 8px 0;
+  background: var(--accent-light);
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.note-content-editable pre {
+  background: var(--bg-input);
+  border-radius: var(--radius-xs);
+  padding: 10px 12px;
+  margin: 8px 0;
+  overflow-x: auto;
+  border: 0.5px solid var(--border);
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.note-content-editable code {
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-size: 12px;
+  background: var(--bg-input);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--accent-text);
+}
+
+.note-content-editable pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 12px;
+  color: inherit;
+}
+
+.note-content-editable hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 12px 0;
 }
 
 .note-content-editable table {
@@ -2442,14 +2713,16 @@ defineExpose({
 .note-content-editable th,
 .note-content-editable td {
   border: 1px solid var(--border-strong);
-  padding: 6px 10px;
-  font-size: 12px;
+  padding: 8px 12px;
+  font-size: 13px;
   min-width: 40px;
+  line-height: 1.5;
 }
 
 .note-content-editable th {
   background: var(--bg-surface);
   font-weight: 600;
+  text-align: left;
 }
 
 .note-content-editable td:focus {

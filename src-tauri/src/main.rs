@@ -47,6 +47,12 @@ struct ScreenshotState {
     image: Mutex<Option<image::RgbaImage>>,
 }
 
+#[cfg(desktop)]
+struct MainWindowState {
+    pos: Mutex<Option<tauri::PhysicalPosition<i32>>>,
+    size: Mutex<Option<tauri::PhysicalSize<u32>>>,
+}
+
 // ========== Desktop-only functions ==========
 #[cfg(desktop)]
 fn acquire_single_instance() -> Option<TcpListener> {
@@ -133,10 +139,53 @@ fn set_skip_taskbar(window: tauri::WebviewWindow, skip: bool) -> Result<(), Stri
     window.set_skip_taskbar(skip).map_err(|e| format!("set_skip_taskbar failed: {}", e))
 }
 
+/// 获取主显示器尺寸（用于截图全屏覆盖）
 #[cfg(desktop)]
 #[tauri::command(async)]
-fn capture_screen(state: tauri::State<ScreenshotState>) -> Result<serde_json::Value, String> {
+fn get_screen_size(app: tauri::AppHandle) -> Result<serde_json::Value, String> {
+    let monitors = xcap::Monitor::all().map_err(|e| format!("获取显示器失败: {}", e))?;
+    let monitor = monitors.iter()
+        .find(|m| m.is_primary().unwrap_or(false))
+        .or_else(|| monitors.first())
+        .ok_or_else(|| "未找到显示器".to_string())?;
+
+    // 获取物理像素尺寸
+    let phys_w = monitor.width().map_err(|e| format!("获取宽度失败: {}", e))?;
+    let phys_h = monitor.height().map_err(|e| format!("获取高度失败: {}", e))?;
+
+    // 获取逻辑尺寸（考虑 DPI 缩放）
+    let logical_w = if let Some(win) = app.get_webview_window("main") {
+        win.scale_factor().map(|s| (phys_w as f64 / s).round() as u32).unwrap_or(phys_w)
+    } else { phys_w };
+    let logical_h = if let Some(win) = app.get_webview_window("main") {
+        win.scale_factor().map(|s| (phys_h as f64 / s).round() as u32).unwrap_or(phys_h)
+    } else { phys_h };
+
+    Ok(serde_json::json!({
+        "width": phys_w,
+        "height": phys_h,
+        "logicalWidth": logical_w,
+        "logicalHeight": logical_h,
+    }))
+}
+
+#[cfg(desktop)]
+#[tauri::command(async)]
+fn capture_screen(
+    app: tauri::AppHandle,
+    state: tauri::State<ScreenshotState>,
+    win_state: tauri::State<MainWindowState>,
+) -> Result<serde_json::Value, String> {
     println!("[截图] 开始截取屏幕...");
+
+    // 保存主窗口状态
+    if let Some(main) = app.get_webview_window("main") {
+        let pos = main.outer_position().ok();
+        let size = main.outer_size().ok();
+        *win_state.pos.lock().unwrap() = pos;
+        *win_state.size.lock().unwrap() = size;
+    }
+
     let monitors = xcap::Monitor::all().map_err(|e| format!("获取显示器列表失败: {}", e))?;
     println!("[截图] 找到 {} 个显示器", monitors.len());
     let monitor = monitors.iter()
@@ -165,11 +214,68 @@ fn capture_screen(state: tauri::State<ScreenshotState>) -> Result<serde_json::Va
     let b64 = BASE64_STANDARD.encode(buf.get_ref());
     let data_url = format!("data:image/png;base64,{}", b64);
 
+    // 关闭已存在的截图窗口
+    if let Some(old) = app.get_webview_window("screenshot") {
+        let _ = old.close();
+    }
+
+    // 创建截图窗口（非透明、无边框、全屏、置顶）
+    let _screenshot_win = tauri::WebviewWindowBuilder::new(
+        &app,
+        "screenshot",
+        tauri::WebviewUrl::App("screenshot.html".into())
+    )
+    .transparent(false)
+    .decorations(false)
+    .always_on_top(true)
+    .skip_taskbar(true)
+    .fullscreen(true)
+    .visible(true)
+    .build()
+    .map_err(|e| format!("创建截图窗口失败: {}", e))?;
+
     Ok(serde_json::json!({
         "dataUrl": data_url,
         "imgWidth": w,
         "imgHeight": h
     }))
+}
+
+/// 关闭截图窗口并恢复主窗口
+#[cfg(desktop)]
+#[tauri::command]
+fn close_screenshot_window(
+    app: tauri::AppHandle,
+    win_state: tauri::State<MainWindowState>,
+) -> Result<(), String> {
+    // 关闭截图窗口
+    if let Some(win) = app.get_webview_window("screenshot") {
+        let _ = win.close();
+    }
+
+    // 恢复主窗口
+    if let Some(main) = app.get_webview_window("main") {
+        let _ = main.set_always_on_top(false);
+        let _ = main.set_skip_taskbar(false);
+        let _ = main.set_decorations(false);
+
+        // 恢复原始尺寸和位置
+        if let Ok(guard) = win_state.size.lock() {
+            if let Some(size) = *guard {
+                let _ = main.set_size(size);
+            }
+        }
+        if let Ok(guard) = win_state.pos.lock() {
+            if let Some(pos) = *guard {
+                let _ = main.set_position(pos);
+            }
+        }
+
+        let _ = main.show();
+        let _ = main.set_focus();
+    }
+
+    Ok(())
 }
 
 #[cfg(desktop)]
@@ -304,7 +410,7 @@ fn run() {
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_notification::init())
-        .plugin(tauri_plugin_devtools::init())
+        // devtools 插件已在发布版移除，减小体积
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init());
 
@@ -315,7 +421,7 @@ fn run() {
         .invoke_handler(tauri::generate_handler![
             save_markdown_file, save_text_file, save_binary_file, set_skip_taskbar,
             capture_screen, finish_region_screenshot, cancel_region_screenshot,
-            get_screenshot_data,
+            get_screenshot_data, get_screen_size, close_screenshot_window,
             supabase_request,
             save_config_to_file, load_config_from_file,
         ])
@@ -325,6 +431,10 @@ fn run() {
         })
         .manage(ScreenshotState {
             image: Mutex::new(None),
+        })
+        .manage(MainWindowState {
+            pos: Mutex::new(None),
+            size: Mutex::new(None),
         })
         .setup(|app| {
             // Single instance

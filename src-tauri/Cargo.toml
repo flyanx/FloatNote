@@ -3,20 +3,23 @@ name = "floatnote"
 version = "1.2.0"
 edition = "2021"
 
+[profile.release]
+strip = true          # 去除调试符号，减小体积
+opt-level = "s"       # 优化体积而非速度
+
 # Universal dependencies (desktop + Android)
 [dependencies]
-tauri = { version = "2", features = ["devtools"] }
+tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tauri-plugin-store = "2"
-tauri-plugin-devtools = "2"
 tauri-plugin-notification = "2"
 tauri-plugin-dialog = "2.7.1"
 tauri-plugin-fs = "2.5.1"
 
 # Desktop-only dependencies (not compiled for Android)
 [target.'cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))'.dependencies]
-tauri = { version = "2", features = ["devtools", "tray-icon"] }
+tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-global-shortcut = "2"
 rfd = "0.15"
 xcap = "0.8"
@@ -31,4 +34,3 @@ tauri-build = { version = "2", features = [] }
 [features]
 default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
-devtools = ["tauri/devtools"]
