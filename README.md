@@ -1,8 +1,8 @@
-# 灵签 FloatNote
+# 笺记 FloatNote
 
 > 轻盈桌面便签 — 记事本 & 待办事项，随手记录，随时可达
 
-灵签是一款基于 Tauri 2 + Vue 3 构建的桌面笔记应用，体积小巧（约 17MB）、启动迅速，支持富文本与 Markdown 双模式编辑，多主题切换，窗口置顶与透明度调节，让笔记像便签一样随手可用。
+笺记是一款基于 Tauri 2 + Vue 3 构建的桌面笔记应用，体积小巧（约 17MB）、启动迅速，支持富文本与 Markdown 双模式编辑，多主题切换，窗口置顶与透明度调节，让笔记像便签一样随手可用。
 
 ---
 
@@ -60,7 +60,7 @@
 
 ## 云同步使用说明
 
-灵签支持通过 Supabase 实现跨设备数据同步。数据以加密形式存储在云端，仅在本地解密。
+笺记支持通过 Supabase 实现跨设备数据同步。数据以加密形式存储在云端，仅在本地解密。
 
 ### 配置步骤
 
@@ -70,7 +70,7 @@
    - `todos` 表：存储待办数据（字段：`id`, `data`, `updated_at`）
 3. 开启 Row Level Security（RLS），建议配置为仅允许认证用户读写
 4. 获取项目的 **URL** 和 **Anon Key**（在 Project Settings -> API 中）
-5. 打开灵签，点击标题栏的 "云同步" 按钮
+5. 打开笺记，点击标题栏的 "云同步" 按钮
 6. 输入 URL 和 Key，点击"测试连接"确认可用
 7. 点击"推送"将本地数据上传到云端，或点击"拉取"将云端数据同步到本地
 
@@ -89,7 +89,7 @@
 
 前往 [Releases](../../releases) 页面下载最新版本：
 
-- **Windows 安装包**：`灵签_x.x.x_x64-setup.exe`（NSIS 安装程序，支持安装到开始菜单和桌面快捷方式）
+- **Windows 安装包**：`笺记_x.x.x_x64-setup.exe`（NSIS 安装程序，支持安装到开始菜单和桌面快捷方式）
 - **Windows 便携版**：`floatnote.exe`（免安装，下载后直接双击运行）
 
 ### 方式二：源码构建
@@ -116,7 +116,7 @@ npm run tauri build
 
 构建产物位于 `src-tauri/target/release/`：
 - `floatnote.exe` — 可执行文件（便携版）
-- `bundle/nsis/灵签_x.x.x_x64-setup.exe` — NSIS 安装包
+- `bundle/nsis/笺记_x.x.x_x64-setup.exe` — NSIS 安装包
 
 ---
 

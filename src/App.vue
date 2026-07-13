@@ -11,9 +11,9 @@
           <line x1="9" y1="14" x2="13" y2="14" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
           <path d="M4 8h16" stroke="var(--accent)" stroke-width="1.5"/>
         </svg>
-        <span class="brand-name">灵签</span>
+        <span class="brand-name">笺记</span>
         <span class="brand-en">FloatNote</span>
-        <span class="brand-ver">V 1.2.0</span>
+        <span class="brand-ver">V 1.3.0</span>
       </div>
       <!-- 极简模式下的记事本/待办切换（放在左侧品牌位置） -->
       <div class="titlebar-tab-switch" v-if="minimalMode">

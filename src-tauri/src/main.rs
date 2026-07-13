@@ -447,7 +447,7 @@ fn run() {
 
             // System tray
             let show_item = MenuItem::with_id(app, "show", "显示窗口", true, None::<&str>)?;
-            let quit_item = MenuItem::with_id(app, "quit", "退出灵签", true, None::<&str>)?;
+            let quit_item = MenuItem::with_id(app, "quit", "退出笺记", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&show_item, &quit_item])?;
 
             fn restore_window(app: &tauri::AppHandle) {
@@ -460,7 +460,7 @@ fn run() {
 
             let tray = TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
-                .tooltip("灵签 FloatNote")
+                .tooltip("笺记 FloatNote")
                 .menu(&menu)
                 .on_menu_event(|app, event| {
                     match event.id().as_ref() {
@@ -501,7 +501,7 @@ fn run() {
 
                         let _ = handle.notification()
                             .builder()
-                            .title("灵签 FloatNote")
+                            .title("笺记 FloatNote")
                             .body("已收纳到系统托盘，双击托盘图标即可恢复")
                             .show();
                     }
