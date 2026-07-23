@@ -3,7 +3,7 @@
 
     <!-- 自定义标题栏 / 拖拽区域 -->
     <div class="titlebar" @dblclick="toggleCompact">
-      <div class="titlebar-brand" v-show="!minimalMode">
+      <div class="titlebar-brand" v-show="!minimalMode" @click="showAboutPanel = !showAboutPanel" style="cursor:pointer">
         <img class="brand-icon" src="/app-icon.png" width="16" height="16" alt="icon" />
         <span class="brand-name">{{ $t('app.brand') }}</span>
         <span class="brand-en">FloatNote</span>
@@ -37,6 +37,41 @@
           </button>
           <SyncPanel v-if="showSyncPanel" />
         </div>
+        <!-- 关于面板 -->
+        <transition name="color-pop">
+          <div class="about-panel" v-if="showAboutPanel" @click.stop>
+            <div class="about-header">
+              <img src="/app-icon.png" width="40" height="40" alt="FloatNote" style="border-radius:8px" />
+              <div>
+                <div class="about-title">{{ currentLang === 'zh' ? '笺记' : 'FloatNote' }}</div>
+                <div class="about-version">V 1.3.1</div>
+              </div>
+            </div>
+            <div class="about-body">
+              <p class="about-desc">{{ currentLang === 'zh'
+                ? '轻量级 Windows 桌面便签笔记，集记事本、待办事项、屏幕截图、多格式导入导出于一体。基于 Tauri 2 + Vue 3 + Rust 构建。'
+                : 'A lightweight Windows desktop note-taking app with notebooks, todos, screenshots, and multi-format import/export. Built with Tauri 2 + Vue 3 + Rust.' }}</p>
+              <div class="about-meta">
+                <div class="about-meta-row">
+                  <span class="about-label">{{ currentLang === 'zh' ? '技术栈' : 'Tech' }}</span>
+                  <span>Tauri 2 · Vue 3 · Rust</span>
+                </div>
+                <div class="about-meta-row">
+                  <span class="about-label">{{ currentLang === 'zh' ? '许可证' : 'License' }}</span>
+                  <span>MIT</span>
+                </div>
+                <div class="about-meta-row">
+                  <span class="about-label">{{ currentLang === 'zh' ? '作者' : 'Author' }}</span>
+                  <span>flyanx</span>
+                </div>
+                <div class="about-meta-row">
+                  <span class="about-label">GitHub</span>
+                  <a href="https://github.com/flyanx/FloatNote" target="_blank" rel="noopener" @click.stop>flyanx/FloatNote</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </transition>
         <!-- 语言切换 -->
         <button class="ctrl-btn lang-btn" @click="toggleLanguage" :title="$t('app.title.language')">
           {{ currentLang === 'zh' ? '中' : 'EN' }}
@@ -401,6 +436,7 @@ const alwaysOnTop = ref(false)
 const isMaximized = ref(false)
 const opacity = ref(1)
 const showSyncPanel = ref(false)
+const showAboutPanel = ref(false)
 const pendingCount = ref(0)
 const isClosing = ref(false)
 const tabBarVisible = ref(true)
@@ -1095,6 +1131,13 @@ onMounted(async () => {
       const wrap = document.querySelector('.sync-btn-wrap')
       if (wrap && !wrap.contains(e.target)) {
         showSyncPanel.value = false
+      }
+    }
+    if (showAboutPanel.value) {
+      const brand = document.querySelector('.titlebar-brand')
+      const panel = document.querySelector('.about-panel')
+      if (brand && !brand.contains(e.target) && panel && !panel.contains(e.target)) {
+        showAboutPanel.value = false
       }
     }
     if (showTrashPop.value) {
@@ -2232,6 +2275,69 @@ onMounted(async () => {
   position: relative;
   display: flex;
   align-items: center;
+}
+
+/* 关于面板 */
+.about-panel {
+  position: absolute;
+  top: 100%;
+  left: 4px;
+  margin-top: 6px;
+  width: 280px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  overflow: hidden;
+}
+.about-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 10px;
+}
+.about-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.about-version {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+.about-body {
+  padding: 0 16px 14px;
+}
+.about-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0 0 10px;
+}
+.about-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.about-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.about-label {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.about-meta-row span:last-child,
+.about-meta-row a {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.about-meta-row a:hover {
+  color: var(--accent);
+  text-decoration: underline;
 }
 
 .theme-picker-popup {
