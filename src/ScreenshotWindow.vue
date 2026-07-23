@@ -1,6 +1,6 @@
 <template>
   <div v-if="loading" class="ss-loading">
-    <span>加载截图...</span>
+    <span>{{ $t('screenshot.loading') }}</span>
   </div>
   <ScreenshotOverlay
     v-else-if="screenshotData"
@@ -13,6 +13,8 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'

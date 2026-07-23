@@ -4,25 +4,19 @@
     <!-- 自定义标题栏 / 拖拽区域 -->
     <div class="titlebar" @dblclick="toggleCompact">
       <div class="titlebar-brand" v-show="!minimalMode">
-        <svg class="brand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="4" y="3" width="16" height="20" rx="3" fill="var(--accent)" opacity="0.2"/>
-          <rect x="6" y="5" width="12" height="16" rx="2" fill="var(--accent)" opacity="0.35"/>
-          <line x1="9" y1="10" x2="15" y2="10" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="9" y1="14" x2="13" y2="14" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M4 8h16" stroke="var(--accent)" stroke-width="1.5"/>
-        </svg>
-        <span class="brand-name">笺记</span>
+        <img class="brand-icon" src="/app-icon.png" width="16" height="16" alt="icon" />
+        <span class="brand-name">{{ $t('app.brand') }}</span>
         <span class="brand-en">FloatNote</span>
-        <span class="brand-ver">V 1.3.0</span>
+        <span class="brand-ver">V 1.3.1</span>
       </div>
       <!-- 极简模式下的记事本/待办切换（放在左侧品牌位置） -->
       <div class="titlebar-tab-switch" v-if="minimalMode">
-        <button class="titlebar-tab-btn" :class="{ active: activeTab === 'note' }" @click="activeTab = 'note'" title="记事本">
+        <button class="titlebar-tab-btn" :class="{ active: activeTab === 'note' }" @click="activeTab = 'note'" :title="$t('app.tab.note')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
           </svg>
         </button>
-        <button class="titlebar-tab-btn" :class="{ active: activeTab === 'todo' }" @click="activeTab = 'todo'" title="待办">
+        <button class="titlebar-tab-btn" :class="{ active: activeTab === 'todo' }" @click="activeTab = 'todo'" :title="$t('app.tab.todo')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
           </svg>
@@ -33,7 +27,7 @@
       <div class="titlebar-controls">
         <!-- 云同步 -->
         <div class="sync-btn-wrap">
-          <button class="ctrl-btn sync-ctrl-btn" :class="{ active: showSyncPanel }" @click.stop="showSyncPanel = !showSyncPanel" title="云同步">
+          <button class="ctrl-btn sync-ctrl-btn" :class="{ active: showSyncPanel }" @click.stop="showSyncPanel = !showSyncPanel" :title="$t('app.title.cloudSync')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
             </svg>
@@ -43,9 +37,13 @@
           </button>
           <SyncPanel v-if="showSyncPanel" />
         </div>
+        <!-- 语言切换 -->
+        <button class="ctrl-btn lang-btn" @click="toggleLanguage" :title="$t('app.title.language')">
+          {{ currentLang === 'zh' ? '中' : 'EN' }}
+        </button>
         <!-- 主题切换 + 透明度（弹出面板） -->
         <div class="theme-btn-wrap">
-          <button class="ctrl-btn" :class="{ active: showThemePicker }" @click.stop="showThemePicker = !showThemePicker" title="主题 / 透明度">
+          <button class="ctrl-btn" :class="{ active: showThemePicker }" @click.stop="showThemePicker = !showThemePicker" :title="$t('app.title.themeOpacity')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20"/><line x1="12" y1="2" x2="12" y2="22"/>
               <line x1="2" y1="12" x2="22" y2="12"/>
@@ -83,27 +81,27 @@
           </transition>
         </div>
         <!-- 置顶 -->
-        <button class="ctrl-btn" :class="{ active: alwaysOnTop }" @click="toggleTop" title="窗口置顶">
+        <button class="ctrl-btn" :class="{ active: alwaysOnTop }" @click="toggleTop" :title="$t('app.title.alwaysOnTop')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="21"/>
             <polyline points="8 14 12 8 16 14"/>
           </svg>
         </button>
         <!-- 极简模式 -->
-        <button class="ctrl-btn" :class="{ active: minimalMode }" @click="toggleMinimalMode" :title="minimalMode ? '经典模式' : '极简模式'">
+        <button class="ctrl-btn" :class="{ active: minimalMode }" @click="toggleMinimalMode" :title="minimalMode ? $t('app.title.classicMode') : $t('app.title.minimalMode')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="18" height="18" rx="2"/>
             <line x1="3" y1="9" x2="21" y2="9"/>
           </svg>
         </button>
         <!-- 最小化 -->
-        <button class="ctrl-btn" @click="minimize" title="最小化">
+        <button class="ctrl-btn" @click="minimize" :title="$t('app.title.minimize')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
         </button>
         <!-- 最大化/还原 -->
-        <button class="ctrl-btn" @click="toggleMaximize" title="最大化">
+        <button class="ctrl-btn" @click="toggleMaximize" :title="$t('app.title.maximize')">
           <svg v-if="!isMaximized" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="18" height="18" rx="2"/>
           </svg>
@@ -113,7 +111,7 @@
           </svg>
         </button>
         <!-- 关闭（收纳到托盘） -->
-        <button class="ctrl-btn close-btn" @click="hideToTray" title="收纳到托盘">
+        <button class="ctrl-btn close-btn" @click="hideToTray" :title="$t('app.title.hideToTray')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
@@ -133,13 +131,13 @@
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
             <polyline points="14 2 14 8 20 8"/>
           </svg>
-          记事本
+          {{ $t('app.tab.note') }}
         </button>
         <button class="main-tab" :class="{ active: activeTab === 'todo' }" @click="activeTab = 'todo'">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
           </svg>
-          待办
+          {{ $t('app.tab.todo') }}
           <span class="todo-badge" v-if="pendingCount > 0">{{ pendingCount }}</span>
         </button>
       </div>
@@ -169,7 +167,7 @@
           </button>
         </div>
         <!-- 添加按钮 -->
-        <button class="sub-add-btn" @click="addSubTab" title="新建">
+        <button class="sub-add-btn" @click="addSubTab" :title="$t('app.title.newTab')">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
@@ -177,7 +175,7 @@
       </div>
 
       <!-- 回收站按钮（tab 栏最右侧） -->
-      <button class="trash-btn" @click.stop="toggleTrashPop($event)" title="回收站">
+      <button class="trash-btn" @click.stop="toggleTrashPop($event)" :title="$t('app.title.trash')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
         </svg>
@@ -195,11 +193,11 @@
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
             </svg>
-            重命名
+            {{ $t('common.rename') }}
           </button>
           <div class="ctx-menu-divider"></div>
           <div class="ctx-color-row">
-            <span class="ctx-color-label">颜色</span>
+            <span class="ctx-color-label">{{ $t('common.color') }}</span>
             <div class="ctx-colors">
               <button
                 v-for="c in tabColors"
@@ -219,7 +217,7 @@
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
             </svg>
-            {{ tabCtxMenu.item?.locked ? '解锁标签页' : '锁定标签页' }}
+            {{ tabCtxMenu.item?.locked ? $t('app.ctx.unlockTab') : $t('app.ctx.lockTab') }}
           </button>
           <div class="ctx-menu-divider"></div>
           <!-- BUG3修复：删除移入二级确认，防止误删 -->
@@ -227,13 +225,13 @@
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6"/>
             </svg>
-            删除标签页
+            {{ $t('app.ctx.deleteTab') }}
           </div>
           <div v-else class="ctx-delete-confirm">
-            <span class="ctx-confirm-tip">确认删除？</span>
+            <span class="ctx-confirm-tip">{{ $t('app.ctx.confirmDelete') }}</span>
             <div class="ctx-confirm-btns">
-              <button class="ctx-confirm-cancel" @click="tabDeleteConfirm = false">取消</button>
-              <button class="ctx-confirm-ok" @click="deleteTabCtx">删除</button>
+              <button class="ctx-confirm-cancel" @click="tabDeleteConfirm = false">{{ $t('common.cancel') }}</button>
+              <button class="ctx-confirm-ok" @click="deleteTabCtx">{{ $t('common.delete') }}</button>
             </div>
           </div>
         </div>
@@ -251,7 +249,7 @@
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            新建{{ activeTab === 'note' ? '记事本' : '待办页' }}
+            {{ $t('app.ctx.newNotebook') }}{{ activeTab === 'note' ? $t('app.tab.note') : $t('app.tab.todoPage') }}
           </button>
         </div>
       </transition>
@@ -261,8 +259,8 @@
     <transition name="color-pop">
       <div class="trash-popup" v-if="showTrashPop" @click.stop :style="trashPopStyle">
           <div class="trash-popup-header">
-            <span>回收站</span>
-            <span class="trash-popup-sub">30天内可恢复</span>
+            <span>{{ $t('app.title.trash') }}</span>
+            <span class="trash-popup-sub">{{ $t('app.trash.subtitle') }}</span>
           </div>
           <div class="trash-list" v-if="trashItems.length">
             <div v-for="(tr, idx) in trashItems" :key="tr.id + '-' + tr.deletedAt" class="trash-item">
@@ -272,24 +270,24 @@
                 <span class="trash-item-date">{{ formatDate(tr.deletedAt) }}</span>
               </div>
               <div class="trash-item-actions">
-                <button class="trash-restore-btn" @click.stop="restoreTrash(idx)">恢复</button>
-                <button class="trash-del-btn" @click.stop="deleteTrash(idx)">永久删除</button>
+                <button class="trash-restore-btn" @click.stop="restoreTrash(idx)">{{ $t('app.trash.restore') }}</button>
+                <button class="trash-del-btn" @click.stop="deleteTrash(idx)">{{ $t('app.trash.permanentDelete') }}</button>
               </div>
             </div>
           </div>
-          <div class="trash-empty" v-else>回收站是空的</div>
+          <div class="trash-empty" v-else>{{ $t('app.trash.empty') }}</div>
         </div>
       </transition>
 
     <!-- 标签栏隐藏时的紧凑工具栏 -->
     <div class="mini-tab-bar" v-if="!tabBarVisible && !minimalMode">
       <!-- 主模式切换 -->
-      <button class="mini-mode-btn" :class="{ active: activeTab === 'note' }" @click="activeTab = 'note'" title="记事本">
+      <button class="mini-mode-btn" :class="{ active: activeTab === 'note' }" @click="activeTab = 'note'" :title="$t('app.tab.note')">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
         </svg>
       </button>
-      <button class="mini-mode-btn" :class="{ active: activeTab === 'todo' }" @click="activeTab = 'todo'" title="待办">
+      <button class="mini-mode-btn" :class="{ active: activeTab === 'todo' }" @click="activeTab = 'todo'" :title="$t('app.tab.todo')">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
         </svg>
@@ -301,26 +299,26 @@
         <option v-for="item in currentSubTabs" :key="item.id" :value="item.id">{{ item.name }}</option>
       </select>
       <!-- 新建 -->
-      <button class="mini-icon-btn" @click="addSubTab" title="新建标签">
+      <button class="mini-icon-btn" @click="addSubTab" :title="$t('app.title.newNotebook')">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
       </button>
       <!-- 重命名 -->
-      <button class="mini-icon-btn" @click="renameActiveTab" title="重命名当前标签">
+      <button class="mini-icon-btn" @click="renameActiveTab" :title="$t('app.title.renameCurrentTab')">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
         </svg>
       </button>
       <!-- 删除标签 -->
-      <button class="mini-icon-btn mini-del-btn" @click="deleteActiveTab" title="删除当前标签">
+      <button class="mini-icon-btn mini-del-btn" @click="deleteActiveTab" :title="$t('app.title.deleteCurrentTab')">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
           <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
         </svg>
       </button>
       <!-- 回收站 -->
-      <button class="mini-icon-btn mini-trash-btn" @click.stop="toggleTrashPop($event)" title="回收站">
+      <button class="mini-icon-btn mini-trash-btn" @click.stop="toggleTrashPop($event)" :title="$t('app.title.trash')">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 4l-2 16H7L5 4"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="14" y1="10" x2="14" y2="14"/>
         </svg>
@@ -356,12 +354,12 @@
             />
           </div>
           <div class="modal-footer">
-            <button class="modal-btn modal-btn-cancel" @click="closeModal">取消</button>
+            <button class="modal-btn modal-btn-cancel" @click="closeModal">{{ $t('common.cancel') }}</button>
             <button
               class="modal-btn modal-btn-confirm"
               :class="{ danger: modal.type === 'confirm' }"
               @click="confirmModal"
-            >{{ modal.confirmText || '确定' }}</button>
+            >{{ modal.confirmText || $t('common.confirm') }}</button>
           </div>
         </div>
       </div>
@@ -373,6 +371,9 @@
 
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { setLanguage, getLanguage } from './i18n/index.js'
+const { t } = useI18n()
 import NotePanel from './components/NotePanel.vue'
 import TodoPanel from './components/TodoPanel.vue'
 import SyncPanel from './components/SyncPanel.vue'
@@ -391,6 +392,7 @@ import { useContextMenu } from './composables/useContextMenu.js'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { PhysicalPosition, PhysicalSize } from '@tauri-apps/api/dpi'
 import { invoke } from '@tauri-apps/api/core'
+import { listen } from '@tauri-apps/api/event'
 
 const theme = ref('light')
 const accent = ref('blue')
@@ -404,6 +406,14 @@ const isClosing = ref(false)
 const tabBarVisible = ref(true)
 const devMode = ref(localStorage.getItem('sn-dev-mode') === '1')
 const minimalMode = ref(localStorage.getItem('sn-minimal-mode') === '1')
+
+// 语言切换
+const currentLang = ref(getLanguage())
+function toggleLanguage() {
+  const newLang = currentLang.value === 'zh' ? 'en' : 'zh'
+  setLanguage(newLang)
+  currentLang.value = newLang
+}
 
 // 云同步状态
 const syncStatus = computed(() => syncStateRef.status)
@@ -421,7 +431,7 @@ const modal = ref({
   message: '',
   inputValue: '',
   placeholder: '',
-  confirmText: '确定',
+  confirmText: t('common.confirm'),
   onConfirm: null,
   onCancel: null
 })
@@ -435,7 +445,7 @@ function showModal(options) {
     message: options.message || '',
     inputValue: options.inputValue || '',
     placeholder: options.placeholder || '',
-    confirmText: options.confirmText || '确定',
+    confirmText: options.confirmText || t('common.confirm'),
     onConfirm: options.onConfirm || null,
     onCancel: options.onCancel || null
   }
@@ -701,7 +711,7 @@ function renameTabCtx() {
   if (!item) return
   const realItem = getRealTabItem(item)
   if (!realItem) return
-  const newName = prompt('重命名标签页：', realItem.name)
+  const newName = prompt(t('app.modal.renameTabMessage'), realItem.name)
   if (newName && newName.trim()) {
     realItem.name = newName.trim()
     saveTabData()
@@ -717,10 +727,10 @@ function renameActiveTab() {
   if (!item) return
   showModal({
     type: 'prompt',
-    title: '重命名标签页',
-    placeholder: '输入新名称...',
+    title: t('app.modal.renameTabTitle'),
+    placeholder: t('app.modal.renameTabPlaceholder'),
     inputValue: item.name,
-    confirmText: '保存',
+    confirmText: t('common.save'),
     onConfirm: (val) => {
       if (val && val.trim()) {
         item.name = val.trim()
@@ -738,12 +748,12 @@ function deleteActiveTab() {
   const item = list.find(t => t.id === activeId)
   if (!item || item.locked) return
   if (list.length <= 1) return
-  const name = item.name || '未命名'
+  const name = item.name || t('common.unnamed')
   showModal({
     type: 'confirm',
-    title: '删除标签页',
-    message: `确定要删除「${name}」吗？`,
-    confirmText: '删除',
+    title: t('app.modal.deleteTabTitle'),
+    message: t('app.modal.deleteTabMessage', { name }),
+    confirmText: t('common.delete'),
     onConfirm: () => {
       addToTrashLocal(item, activeTab.value === 'note' ? 'book' : 'list')
       if (activeTab.value === 'note') {
@@ -827,16 +837,16 @@ function saveTabData() {
 
 // 主题切换
 const showThemePicker = ref(false)
-const themes = [
-  { id: 'light', name: '明亮', desc: '干净白纸', previewBg: '#ffffff', previewText: '#1a1a1a', previewAccent: '#5b5ef4' },
-  { id: 'dark', name: '暗黑', desc: '深夜模式', previewBg: '#24242a', previewText: '#f0f0f2', previewAccent: '#7c7ff5' },
-  { id: 'sepia', name: '暖纸', desc: '米黄纸张', previewBg: '#f5eedd', previewText: '#4a3728', previewAccent: '#8b6914' },
-  { id: 'mint', name: '薄荷', desc: '清爽护眼', previewBg: '#ebf7f1', previewText: '#1a3a2e', previewAccent: '#0d9488' },
-  { id: 'sakura', name: '樱花', desc: '温柔不刺眼', previewBg: '#faecee', previewText: '#3d1a28', previewAccent: '#c7446a' },
-  { id: 'haze', name: '雾蓝', desc: '晨雾轻柔', previewBg: '#edf0f5', previewText: '#2c3345', previewAccent: '#6b7db3' },
-  { id: 'latte', name: '奶咖', desc: '奶泡柔和', previewBg: '#f5efe8', previewText: '#4a3528', previewAccent: '#b8845c' },
-  { id: 'espresso', name: '暖咖', desc: '咖啡馆氛围', previewBg: '#2e231c', previewText: '#eeddcc', previewAccent: '#d4a574' },
-]
+const themes = computed(() => [
+  { id: 'light', name: t('app.theme.light.name'), desc: t('app.theme.light.desc'), previewBg: '#ffffff', previewText: '#1a1a1a', previewAccent: '#5b5ef4' },
+  { id: 'dark', name: t('app.theme.dark.name'), desc: t('app.theme.dark.desc'), previewBg: '#24242a', previewText: '#f0f0f2', previewAccent: '#7c7ff5' },
+  { id: 'sepia', name: t('app.theme.sepia.name'), desc: t('app.theme.sepia.desc'), previewBg: '#f5eedd', previewText: '#4a3728', previewAccent: '#8b6914' },
+  { id: 'mint', name: t('app.theme.mint.name'), desc: t('app.theme.mint.desc'), previewBg: '#ebf7f1', previewText: '#1a3a2e', previewAccent: '#0d9488' },
+  { id: 'sakura', name: t('app.theme.sakura.name'), desc: t('app.theme.sakura.desc'), previewBg: '#faecee', previewText: '#3d1a28', previewAccent: '#c7446a' },
+  { id: 'haze', name: t('app.theme.haze.name'), desc: t('app.theme.haze.desc'), previewBg: '#edf0f5', previewText: '#2c3345', previewAccent: '#6b7db3' },
+  { id: 'latte', name: t('app.theme.latte.name'), desc: t('app.theme.latte.desc'), previewBg: '#f5efe8', previewText: '#4a3528', previewAccent: '#b8845c' },
+  { id: 'espresso', name: t('app.theme.espresso.name'), desc: t('app.theme.espresso.desc'), previewBg: '#2e231c', previewText: '#eeddcc', previewAccent: '#d4a574' },
+])
 
 function setTheme(name) {
   theme.value = name
@@ -913,30 +923,12 @@ async function toggleMaximize() {
 }
 
 async function applyOpacity() {
-  // Tauri v2 没有 JS setOpacity API，通过 CSS 控制透明度
-  // 窗口已设置 transparent:true，CSS opacity 直接生效
-  const appShell = document.querySelector('.app-shell')
-  if (appShell) {
-    appShell.style.opacity = opacity.value
-  }
-  // BUG6修复：透明度100%时覆盖背景色的透明通道，实现完全不透明
-  if (opacity.value >= 1) {
-    const darkThemes = ['dark', 'espresso']
-    const isDark = darkThemes.includes(theme.value)
-    const bgColors = {
-      light: 'rgb(255, 255, 255)',
-      dark: 'rgb(28, 28, 32)',
-      sepia: 'rgb(250, 245, 235)',
-      mint: 'rgb(240, 250, 246)',
-      sakura: 'rgb(253, 243, 246)',
-      haze: 'rgb(242, 244, 248)',
-      latte: 'rgb(250, 246, 242)',
-      espresso: 'rgb(38, 28, 22)',
-    }
-    if (appShell) appShell.style.background = bgColors[theme.value] || (isDark ? 'rgb(28, 28, 32)' : 'rgb(255, 255, 255)')
-  } else {
-    // 有透明度时，移除内联背景覆盖，恢复 CSS 变量
-    if (appShell) appShell.style.background = ''
+  // 使用原生窗口透明度 API（操作系统分层窗口）
+  // 比 CSS opacity 效果好：内容仍清晰，只是整个窗口半透明
+  try {
+    await invoke('set_window_opacity', { opacity: opacity.value })
+  } catch (e) {
+    console.error('set_window_opacity failed:', e)
   }
   localStorage.setItem('sn-opacity', opacity.value)
 }
@@ -998,6 +990,7 @@ async function restoreWindowState() {
 }
 
 onMounted(async () => {
+  try {
   const savedTheme = localStorage.getItem('sn-theme')
   if (savedTheme) theme.value = savedTheme
 
@@ -1072,6 +1065,22 @@ onMounted(async () => {
     if (todoPanelRef.value) todoPanelRef.value.reload()
   })
 
+  // 系统托盘菜单事件：新建笔记 / 新建待办
+  listen('tray-action', (event) => {
+    const action = event.payload
+    if (action === 'add_note') {
+      activeTab.value = 'note'
+      nextTick(() => {
+        if (notePanelRef.value) notePanelRef.value.addNote()
+      })
+    } else if (action === 'add_todo') {
+      activeTab.value = 'todo'
+      nextTick(() => {
+        if (todoPanelRef.value) todoPanelRef.value.addTodo()
+      })
+    }
+  })
+
   // 点击外部关闭弹出面板
   document.addEventListener('click', (e) => {
     closeTabCtxMenu()
@@ -1095,6 +1104,18 @@ onMounted(async () => {
       }
     }
   })
+
+  // 所有初始化完成后，显示窗口（配合 tauri.conf.json 的 visible: false）
+  await nextTick()
+  } catch (e) {
+    console.error('onMounted error:', e)
+  } finally {
+    try {
+      await getCurrentWebviewWindow().show()
+    } catch (e) {
+      console.error('Failed to show window:', e)
+    }
+  }
 })
 </script>
 
@@ -1160,6 +1181,10 @@ onMounted(async () => {
 .brand-icon {
   flex-shrink: 0;
   display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  object-fit: cover;
 }
 
 .brand-name {
@@ -1265,6 +1290,14 @@ onMounted(async () => {
   transition: all var(--transition);
   position: relative;
   overflow: hidden;
+}
+
+.lang-btn {
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 28px;
+  padding: 0 2px;
+  letter-spacing: 0.02em;
 }
 
 .ctrl-btn:hover {

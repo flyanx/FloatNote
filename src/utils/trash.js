@@ -1,6 +1,8 @@
 /**
  * 回收站工具
  */
+import i18n from '../i18n/index.js'
+
 const ITEM_TRASH_KEY = 'sn-item-trash'
 
 export function addItemToTrash(item, type) {
@@ -8,7 +10,7 @@ export function addItemToTrash(item, type) {
   try { trash = JSON.parse(localStorage.getItem(ITEM_TRASH_KEY) || '[]') } catch {}
   trash.push({
     id: item.id,
-    name: item.title || item.text || item.name || '无标题',
+    name: item.title || item.text || item.name || i18n.global.t('note.item.untitled'),
     type,
     deletedAt: Date.now(),
     data: JSON.parse(JSON.stringify(item))

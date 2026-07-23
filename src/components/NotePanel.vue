@@ -3,11 +3,11 @@
     <!-- 笔记列表侧栏 -->
     <div class="note-sidebar" v-show="sidebarVisible">
       <div class="sidebar-header">
-        <button class="add-note-btn" @click="addNote" title="新建笔记">
+        <button class="add-note-btn" @click="addNote" :title="$t('note.sidebar.addNewTitle')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          <span>新建</span>
+          <span>{{ $t('note.sidebar.addNew') }}</span>
         </button>
       </div>
 
@@ -27,11 +27,11 @@
                 <line x1="12" y1="13.5" x2="12" y2="20"/>
                 <line x1="10" y1="20" x2="14" y2="20"/>
               </svg>
-              {{ note.title || '无标题' }}
+              {{ note.title || $t('note.item.untitled') }}
             </div>
             <div class="note-item-preview">{{ getPreview(note.content) }}</div>
           </div>
-          <button class="note-del-btn" @click.stop="deleteNote(note.id)" title="删除">
+          <button class="note-del-btn" @click.stop="deleteNote(note.id)" :title="$t('note.item.deleteTitle')">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
@@ -44,8 +44,8 @@
             <line x1="16" y1="13" x2="8" y2="13"/>
             <line x1="16" y1="17" x2="8" y2="17"/>
           </svg>
-          <span v-if="searchQuery">没有匹配的笔记</span>
-          <span v-else>暂无笔记，点击上方「新建」开始记录</span>
+          <span v-if="searchQuery">{{ $t('note.empty.noMatch') }}</span>
+          <span v-else>{{ $t('note.empty.noNotes') }}</span>
         </div>
       </div>
       <!-- 搜索栏，放在底部，更隐蔽 -->
@@ -53,7 +53,7 @@
         <input
           class="search-input"
           v-model="searchQuery"
-          placeholder="搜索笔记..."
+          :placeholder="$t('note.search.placeholder')"
           @input="onSearchInput"
         />
         <svg class="search-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -72,18 +72,18 @@
               <line x1="12" y1="17" x2="12" y2="22"/>
               <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17z"/>
             </svg>
-            {{ isNotePinned(noteCtxMenu.note) ? '取消置顶' : '置顶笔记' }}
+            {{ isNotePinned(noteCtxMenu.note) ? $t('note.ctx.unpin') : $t('note.ctx.pin') }}
           </button>
           <div class="ctx-menu-divider"></div>
           <!-- 上移 / 下移（美化版） -->
           <div class="ctx-move-row">
-            <button class="ctx-move-btn" @click="moveNoteUp" :disabled="!canMoveNoteUp" title="上移">
+            <button class="ctx-move-btn" @click="moveNoteUp" :disabled="!canMoveNoteUp" :title="$t('note.ctx.moveUpTitle')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                 <polyline points="18 15 12 9 6 15"/>
               </svg>
             </button>
-            <span class="ctx-move-label">排序</span>
-            <button class="ctx-move-btn" @click="moveNoteDown" :disabled="!canMoveNoteDown" title="下移">
+            <span class="ctx-move-label">{{ $t('note.ctx.sortLabel') }}</span>
+            <button class="ctx-move-btn" @click="moveNoteDown" :disabled="!canMoveNoteDown" :title="$t('note.ctx.moveDownTitle')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                 <polyline points="6 9 12 15 18 9"/>
               </svg>
@@ -134,24 +134,24 @@
         <input
           class="note-title-input selectable"
           v-model="activeNote.title"
-          placeholder="标题..."
+          :placeholder="$t('note.editor.titlePlaceholder')"
           @input="debounceSave"
           maxlength="50"
         />
         <div class="editor-actions">
-          <button class="action-btn" :class="{ active: richMode }" @click="toggleRichMode" title="富文本模式">
+          <button class="action-btn" :class="{ active: richMode }" @click="toggleRichMode" :title="$t('note.editor.richModeTitle')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
             </svg>
           </button>
-          <button class="action-btn" :class="{ active: markdownMode }" @click="toggleMarkdownMode" title="Markdown 模式">
+          <button class="action-btn" :class="{ active: markdownMode }" @click="toggleMarkdownMode" :title="$t('note.editor.markdownModeTitle')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M4 7v10"/><path d="M8 7v10"/><path d="M4 12h4"/><path d="M14 7l3 10 3-10"/>
             </svg>
           </button>
           <div class="screenshot-btn-wrap" @click.stop>
-            <button class="action-btn" :class="{ active: showScreenshotMenu }" @click.stop="showScreenshotMenu = !showScreenshotMenu" title="截图">
+            <button class="action-btn" :class="{ active: showScreenshotMenu }" @click.stop="showScreenshotMenu = !showScreenshotMenu" :title="$t('note.screenshot.title')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                 <circle cx="12" cy="13" r="4"/>
@@ -164,24 +164,24 @@
                     <rect x="3" y="3" width="18" height="18" rx="2"/>
                     <circle cx="12" cy="12" r="3"/>
                   </svg>
-                  直接截图
+                  {{ $t('note.screenshot.direct') }}
                 </button>
                 <button class="ss-menu-item" @click="startScreenshot('hide')">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
                     <line x1="1" y1="1" x2="23" y2="23"/>
                   </svg>
-                  隐藏后截图
+                  {{ $t('note.screenshot.hide') }}
                 </button>
                 <div class="ss-divider"></div>
                 <div class="ss-hotkey-row">
-                  <span class="ss-hotkey-label">快捷键</span>
+                  <span class="ss-hotkey-label">{{ $t('note.screenshot.hotkeyLabel') }}</span>
                   <input
                     class="ss-hotkey-input"
                     :value="screenshotHotkey"
                     @keydown.prevent="captureHotkey"
                     @blur="saveHotkey"
-                    placeholder="点击输入快捷键..."
+                    :placeholder="$t('note.screenshot.hotkeyPlaceholder')"
                     readonly
                   />
                 </div>
@@ -190,7 +190,7 @@
           </div>
           <!-- 导入下拉菜单 -->
           <div class="io-btn-wrap" @click.stop>
-            <button class="action-btn" :class="{ active: showImportMenu }" @click.stop="showImportMenu = !showImportMenu" title="导入">
+            <button class="action-btn" :class="{ active: showImportMenu }" @click.stop="showImportMenu = !showImportMenu" :title="$t('note.io.importTitle')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
@@ -198,16 +198,16 @@
             </button>
             <transition name="color-pop">
               <div class="io-dropdown" v-if="showImportMenu" @click.stop>
-                <button class="io-menu-item" @click="doImport('md')"><span class="io-fmt">.md</span>Markdown</button>
-                <button class="io-menu-item" @click="doImport('txt')"><span class="io-fmt">.txt</span>纯文本</button>
-                <button class="io-menu-item" @click="doImport('html')"><span class="io-fmt">.html</span>HTML 网页</button>
-                <button class="io-menu-item" @click="doImport('docx')"><span class="io-fmt">.docx</span>Word 文档</button>
+                <button class="io-menu-item" @click="doImport('md')"><span class="io-fmt">.md</span>{{ $t('note.io.markdown') }}</button>
+                <button class="io-menu-item" @click="doImport('txt')"><span class="io-fmt">.txt</span>{{ $t('note.io.plainText') }}</button>
+                <button class="io-menu-item" @click="doImport('html')"><span class="io-fmt">.html</span>{{ $t('note.io.htmlPage') }}</button>
+                <button class="io-menu-item" @click="doImport('docx')"><span class="io-fmt">.docx</span>{{ $t('note.io.wordDoc') }}</button>
               </div>
             </transition>
           </div>
           <!-- 导出下拉菜单 -->
           <div class="io-btn-wrap" @click.stop>
-            <button class="action-btn" :class="{ active: showExportMenu }" @click.stop="showExportMenu = !showExportMenu" title="导出">
+            <button class="action-btn" :class="{ active: showExportMenu }" @click.stop="showExportMenu = !showExportMenu" :title="$t('note.io.exportTitle')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
@@ -215,11 +215,11 @@
             </button>
             <transition name="color-pop">
               <div class="io-dropdown" v-if="showExportMenu" @click.stop>
-                <button class="io-menu-item" @click="doExport('md')"><span class="io-fmt">.md</span>Markdown</button>
-                <button class="io-menu-item" @click="doExport('txt')"><span class="io-fmt">.txt</span>纯文本</button>
-                <button class="io-menu-item" @click="doExport('html')"><span class="io-fmt">.html</span>HTML 网页</button>
-                <button class="io-menu-item" @click="doExport('docx')"><span class="io-fmt">.docx</span>Word 文档</button>
-                <button class="io-menu-item" @click="doExport('pdf')"><span class="io-fmt">.pdf</span>PDF 文档</button>
+                <button class="io-menu-item" @click="doExport('md')"><span class="io-fmt">.md</span>{{ $t('note.io.markdown') }}</button>
+                <button class="io-menu-item" @click="doExport('txt')"><span class="io-fmt">.txt</span>{{ $t('note.io.plainText') }}</button>
+                <button class="io-menu-item" @click="doExport('html')"><span class="io-fmt">.html</span>{{ $t('note.io.htmlPage') }}</button>
+                <button class="io-menu-item" @click="doExport('docx')"><span class="io-fmt">.docx</span>{{ $t('note.io.wordDoc') }}</button>
+                <button class="io-menu-item" @click="doExport('pdf')"><span class="io-fmt">.pdf</span>{{ $t('note.io.pdfDoc') }}</button>
               </div>
             </transition>
           </div>
@@ -229,35 +229,35 @@
     <!-- 富文本工具栏 -->
     <div class="editor-toolbar" v-if="richMode && !minimalMode">
       <!-- 字体大小 -->
-      <select class="tb-fontsize-select" @change="applyFontSize($event.target.value); $event.target.value = ''" title="字体大小">
-        <option value="" disabled selected>字号</option>
-        <option value="1">小 10px</option>
-        <option value="2">中 13px</option>
-        <option value="3">正常 16px</option>
-        <option value="4">大 18px</option>
-        <option value="5">超大 24px</option>
-        <option value="6">巨大 32px</option>
-        <option value="7">特大 48px</option>
+      <select class="tb-fontsize-select" @change="applyFontSize($event.target.value); $event.target.value = ''" :title="$t('note.toolbar.fontSizeTitle')">
+        <option value="" disabled selected>{{ $t('note.toolbar.fontSizeDefault') }}</option>
+        <option value="1">{{ $t('note.toolbar.fontSizeSmall') }}</option>
+        <option value="2">{{ $t('note.toolbar.fontSizeMedium') }}</option>
+        <option value="3">{{ $t('note.toolbar.fontSizeNormal') }}</option>
+        <option value="4">{{ $t('note.toolbar.fontSizeLarge') }}</option>
+        <option value="5">{{ $t('note.toolbar.fontSizeXLarge') }}</option>
+        <option value="6">{{ $t('note.toolbar.fontSizeXXLarge') }}</option>
+        <option value="7">{{ $t('note.toolbar.fontSizeMax') }}</option>
       </select>
       <span class="tb-sep"></span>
-      <button class="tb-btn" @click="execCmd('bold')" title="加粗 (Ctrl+B)"><b>B</b></button>
-      <button class="tb-btn" @click="execCmd('italic')" title="斜体 (Ctrl+I)"><i>I</i></button>
-      <button class="tb-btn" @click="execCmd('underline')" title="下划线 (Ctrl+U)"><u>U</u></button>
-      <button class="tb-btn" @click="execCmd('strikeThrough')" title="删除线"><s>S</s></button>
-      <button class="tb-btn" @click="execCmd('removeFormat')" title="清除格式">
+      <button class="tb-btn" @click="execCmd('bold')" :title="$t('note.toolbar.boldTitle')"><b>B</b></button>
+      <button class="tb-btn" @click="execCmd('italic')" :title="$t('note.toolbar.italicTitle')"><i>I</i></button>
+      <button class="tb-btn" @click="execCmd('underline')" :title="$t('note.toolbar.underlineTitle')"><u>U</u></button>
+      <button class="tb-btn" @click="execCmd('strikeThrough')" :title="$t('note.toolbar.strikeTitle')"><s>S</s></button>
+      <button class="tb-btn" @click="execCmd('removeFormat')" :title="$t('note.toolbar.clearFormatTitle')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M4 7h16M6 7l1.5 13h9L18 7"/>
           <line x1="3" y1="20" x2="21" y2="4" stroke-width="2.5"/>
         </svg>
       </button>
       <span class="tb-sep"></span>
-      <button class="tb-btn" @click="execCmd('undo')" title="撤销 (Ctrl+Z)">
+      <button class="tb-btn" @click="execCmd('undo')" :title="$t('note.toolbar.undoTitle')">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="1 4 1 10 7 10"/>
           <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
         </svg>
       </button>
-      <button class="tb-btn" @click="execCmd('redo')" title="重做 (Ctrl+Y)">
+      <button class="tb-btn" @click="execCmd('redo')" :title="$t('note.toolbar.redoTitle')">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="23 4 23 10 17 10"/>
           <path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10"/>
@@ -265,7 +265,7 @@
       </button>
       <span class="tb-sep"></span>
       <div class="tb-list-dropdown" @click.stop>
-        <button class="tb-btn" :class="{ active: listType }" @click="showListDropdown = !showListDropdown" title="列表">
+        <button class="tb-btn" :class="{ active: listType }" @click="showListDropdown = !showListDropdown" :title="$t('note.toolbar.listTitle')">
           <svg v-if="listType === 'ol'" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/>
             <text x="3" y="8" font-size="7" fill="currentColor" stroke="none" font-family="sans-serif">1</text>
@@ -287,7 +287,7 @@
                 <line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/>
                 <circle cx="4.5" cy="6" r="1.5" fill="currentColor"/><circle cx="4.5" cy="12" r="1.5" fill="currentColor"/><circle cx="4.5" cy="18" r="1.5" fill="currentColor"/>
               </svg>
-              无序列表
+              {{ $t('note.toolbar.unorderedList') }}
             </button>
             <button class="tb-dropdown-item" :class="{ active: listType === 'ol' }" @click="execCmd('insertOrderedList'); listType = listType === 'ol' ? null : 'ol'; showListDropdown = false">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -296,33 +296,33 @@
                 <text x="3" y="14" font-size="7" fill="currentColor" stroke="none" font-family="sans-serif">2</text>
                 <text x="3" y="20" font-size="7" fill="currentColor" stroke="none" font-family="sans-serif">3</text>
               </svg>
-              有序列表
+              {{ $t('note.toolbar.orderedList') }}
             </button>
           </div>
         </transition>
       </div>
       <span class="tb-sep"></span>
-      <button class="tb-btn" @click="insertLink" title="插入链接">
+      <button class="tb-btn" @click="insertLink" :title="$t('note.toolbar.insertLinkTitle')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
           <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
         </svg>
       </button>
-      <label class="tb-btn tb-color-btn" title="字体颜色">
+      <label class="tb-btn tb-color-btn" :title="$t('note.toolbar.fontColorTitle')">
         <input type="color" class="tb-color" @change="execCmd('foreColor', $event.target.value)" />
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 2L2 22h20L12 2z"/>
           <line x1="7" y1="16" x2="17" y2="16"/>
         </svg>
       </label>
-      <button class="tb-btn" @click="insertImageToEditor" title="插入图片">
+      <button class="tb-btn" @click="insertImageToEditor" :title="$t('note.toolbar.insertImageTitle')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2"/>
           <circle cx="8.5" cy="8.5" r="1.5"/>
           <polyline points="21 15 16 10 5 21"/>
         </svg>
       </button>
-      <button class="tb-btn" @click="insertTable" title="插入表格">
+      <button class="tb-btn" @click="insertTable" :title="$t('note.toolbar.insertTableTitle')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2"/>
           <line x1="3" y1="9" x2="21" y2="9"/>
@@ -338,6 +338,7 @@
       v-if="richMode"
       ref="editableDiv"
       class="note-content-editable selectable"
+      :style="{ '--editor-placeholder': `'${$t('note.editor.startTyping')}'` }"
       contenteditable="true"
       @input="onRichInput"
       @paste="onPaste"
@@ -354,8 +355,8 @@
     <!-- Markdown 模式 -->
     <div v-else class="markdown-wrap">
       <div class="md-tab-bar">
-        <button class="md-tab" :class="{ active: !markdownPreview }" @click="markdownPreview = false">编辑</button>
-        <button class="md-tab" :class="{ active: markdownPreview }" @click="markdownPreview = true">预览</button>
+        <button class="md-tab" :class="{ active: !markdownPreview }" @click="markdownPreview = false">{{ $t('note.markdown.tabEdit') }}</button>
+        <button class="md-tab" :class="{ active: markdownPreview }" @click="markdownPreview = true">{{ $t('note.markdown.tabPreview') }}</button>
       </div>
       <div class="md-body">
         <textarea
@@ -363,20 +364,20 @@
           v-show="!markdownPreview"
           class="note-textarea selectable md-editor"
           v-model="activeNote.content"
-          placeholder="支持 Markdown 语法..."
+          :placeholder="$t('note.markdown.placeholder')"
           @input="debounceSave"
           spellcheck="false"
         ></textarea>
         <div v-if="markdownPreview" class="md-preview selectable" v-html="markdownHtml"></div>
       </div>
       <div class="md-hint" v-if="!markdownPreview">
-        图片语法: ![描述](url "=宽度px 对齐") 例: ![图](img.png "=300 center")
+        {{ $t('note.markdown.imageHint') }}
       </div>
     </div>
 
       <div class="editor-footer">
-        <span class="char-count" title="字符 / 词 / 行 | 阅读时长">
-          {{ stats.chars }} 字 / {{ stats.words }} 词 / {{ stats.lines }} 行 · 约 {{ stats.readTime }}
+        <span class="char-count" :title="$t('note.footer.statsTitle')">
+          {{ stats.chars }} {{ $t('note.footer.charUnit') }} / {{ stats.words }} {{ $t('note.footer.wordUnit') }} / {{ stats.lines }} {{ $t('note.footer.lineUnit') }} · {{ $t('note.footer.readTimePrefix') }} {{ stats.readTime }}
         </span>
         <span class="save-status" :class="saveStatus">{{ saveStatusText }}</span>
       </div>
@@ -389,7 +390,7 @@
             <circle cx="8.5" cy="8.5" r="1.5"/>
             <polyline points="21 15 16 10 5 21"/>
           </svg>
-          <span>松开即可插入图片</span>
+          <span>{{ $t('note.drag.releaseToInsert') }}</span>
         </div>
       </transition>
     </div>
@@ -399,7 +400,7 @@
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
         <polyline points="14 2 14 8 20 8"/>
       </svg>
-      <p>点击左侧 + 新建笔记</p>
+      <p>{{ $t('note.empty.clickToAdd') }}</p>
     </div>
 
     <!-- 隐藏的文件选择器 -->
@@ -442,17 +443,17 @@
     <!-- 富文本图片工具条 -->
     <div class="img-resize-toolbar" v-if="selectedImg" :style="imgToolbarStyle">
       <div class="img-align-btns">
-        <button class="img-align-btn" @click="setImageAlign('left')" title="左对齐">
+        <button class="img-align-btn" @click="setImageAlign('left')" :title="$t('note.image.alignLeftTitle')">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="3" y1="6" x2="21" y2="6"/><rect x="3" y="10" width="12" height="8" rx="1"/>
           </svg>
         </button>
-        <button class="img-align-btn" @click="setImageAlign('center')" title="居中">
+        <button class="img-align-btn" @click="setImageAlign('center')" :title="$t('note.image.alignCenterTitle')">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="3" y1="6" x2="21" y2="6"/><rect x="6" y="10" width="12" height="8" rx="1"/>
           </svg>
         </button>
-        <button class="img-align-btn" @click="setImageAlign('right')" title="右对齐">
+        <button class="img-align-btn" @click="setImageAlign('right')" :title="$t('note.image.alignRightTitle')">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="3" y1="6" x2="21" y2="6"/><rect x="9" y="10" width="12" height="8" rx="1"/>
           </svg>
@@ -462,7 +463,7 @@
     </div>
 
     <!-- 侧边栏浮动切换按钮：粘在左侧边缘，不占布局空间 -->
-    <div class="sidebar-toggle-float" @click="sidebarVisible = !sidebarVisible" :title="sidebarVisible ? '隐藏侧栏' : '显示侧栏'">
+    <div class="sidebar-toggle-float" @click="sidebarVisible = !sidebarVisible" :title="sidebarVisible ? $t('note.sidebar.hideTitle') : $t('note.sidebar.showTitle')">
       <svg v-if="sidebarVisible" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="15 6 9 12 15 18"/>
       </svg>
@@ -475,6 +476,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { marked } from 'marked'
 // docx 和 mammoth 体积大（~6MB 源码），改为动态导入，只在导出/导入 Word 时加载
 // 截图窗口由 Rust 后端独立创建，主窗口不再导入 ScreenshotOverlay
@@ -486,6 +488,8 @@ import { NOTE_COLORS } from '../utils/colors.js'
 import { generateId } from '../utils/id.js'
 import { useToast } from '../composables/useToast.js'
 import { useContextMenu } from '../composables/useContextMenu.js'
+
+const { t } = useI18n()
 
 const NOTES_KEY = 'sn-notebooks'
 
@@ -555,7 +559,7 @@ const displayedNotes = computed(() => {
 const activeNoteId = ref(null)
 const activeNote = computed(() => displayedNotes.value.find(n => n.id === activeNoteId.value) || null)
 const stats = computed(() => {
-  if (!activeNote.value) return { chars: 0, words: 0, lines: 0, readTime: '0 分钟' }
+  if (!activeNote.value) return { chars: 0, words: 0, lines: 0, readTime: t('note.readTime.zero') }
   const content = activeNote.value.content || ''
   // 去除 HTML 标签后的纯文本
   const plain = content.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ')
@@ -567,11 +571,11 @@ const stats = computed(() => {
   const lines = plain.split('\n').length
   // 阅读时长：按每分钟 300 字计算
   const mins = Math.max(1, Math.ceil(words / 300))
-  const readTime = mins < 60 ? `${mins} 分钟` : `${Math.floor(mins/60)} 小时 ${mins%60} 分钟`
+  const readTime = mins < 60 ? t('note.readTime.minute', { n: mins }) : t('note.readTime.hourMinute', { h: Math.floor(mins/60), m: mins%60 })
   return { chars, words, lines, readTime }
 })
 
-const saveStatusText = computed(() => saveStatus.value === 'saving' ? '保存中...' : '已保存')
+const saveStatusText = computed(() => saveStatus.value === 'saving' ? t('note.save.saving') : t('note.save.saved'))
 const markdownHtml = computed(() => {
   if (!activeNote.value || !activeNote.value.content) return ''
   try {
@@ -603,7 +607,7 @@ const markdownHtml = computed(() => {
 
 // 笔记本管理
 function addNotebook() {
-  const book = { id: Date.now(), name: `记事本 ${notebooks.value.length + 1}`, notes: [] }
+  const book = { id: Date.now(), name: t('note.book.defaultName', { n: notebooks.value.length + 1 }), notes: [] }
   notebooks.value.push(book)
   activeBookId.value = book.id
   showBookMenu.value = false
@@ -641,7 +645,7 @@ function startRenameBook(id) {
 }
 
 function finishRenameBook(book) {
-  if (!book.name.trim()) book.name = '未命名'
+  if (!book.name.trim()) book.name = t('common.unnamed')
   editingBookId.value = null
   saveData()
 }
@@ -674,10 +678,10 @@ function restoreRichContent() {
 }
 
 function getPreview(content) {
-  if (!content) return '无内容'
+  if (!content) return t('note.preview.empty')
   // 去除 HTML 标签后截取预览
   const plain = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
-  return plain.slice(0, 30) || '无内容'
+  return plain.slice(0, 30) || t('note.preview.empty')
 }
 
 // --- 富文本编辑功能 ---
@@ -693,7 +697,7 @@ function applyFontSize(size) {
 }
 
 function insertLink() {
-  const url = prompt('输入链接 URL:')
+  const url = prompt(t('note.link.promptUrl'))
   if (url) {
     document.execCommand('createLink', false, url)
     editableDiv.value?.focus()
@@ -844,7 +848,7 @@ function insertTable() {
     html += '<tr>'
     for (let c = 0; c < cols; c++) {
       const tag = r === 0 ? 'th' : 'td'
-      html += `<${tag} style="border:1px solid var(--border-strong);padding:6px 10px;font-size:12px;${r === 0 ? 'background:var(--bg-surface);font-weight:600;' : ''}">${r === 0 ? '标题' : ''}</${tag}>`
+      html += `<${tag} style="border:1px solid var(--border-strong);padding:6px 10px;font-size:12px;${r === 0 ? 'background:var(--bg-surface);font-weight:600;' : ''}">${r === 0 ? t('note.table.headerCell') : ''}</${tag}>`
     }
     html += '</tr>'
   }
@@ -1058,9 +1062,9 @@ async function startScreenshot(mode) {
   try {
     await invoke('capture_screen')
   } catch (e) {
-    const err = typeof e === 'string' ? e : (e?.message || '未知错误')
+    const err = typeof e === 'string' ? e : (e?.message || t('common.unknownError'))
     console.error('截图失败:', err)
-    showToast('截图失败: ' + err)
+    showToast(t('note.toast.screenshotFailed', { error: err }))
     // 截图失败时恢复主窗口
     if (mode === 'hide') {
       try { await win.show(); await win.setFocus() } catch {}
@@ -1356,7 +1360,7 @@ function onDrop(e) {
     })
   }
 
-  showToast(`已导入 ${total} 个文件`)
+  showToast(t('note.toast.importedFiles', { count: total }))
 }
 
 function importMarkdown() {
@@ -1379,7 +1383,7 @@ function doImport(fmt) {
 function handleFileImport(e) {
   const file = e.target.files?.[0]
   if (!file || !activeNote.value) { e.target.value = ''; return }
-  showToast('正在导入...')
+  showToast(t('note.toast.importing'))
   const reader = new FileReader()
   reader.onload = (ev) => {
     const text = ev.target.result || ''
@@ -1411,7 +1415,7 @@ function handleFileImport(e) {
       activeNote.value.content = text
     }
     debounceSave()
-    showToast('已导入文件')
+    showToast(t('note.toast.importedFile'))
   }
   reader.readAsText(file)
   e.target.value = ''
@@ -1420,7 +1424,7 @@ function handleFileImport(e) {
 async function handleDocxImport(e) {
   const file = e.target.files?.[0]
   if (!file || !activeNote.value) { e.target.value = ''; return }
-  showToast('正在导入...')
+  showToast(t('note.toast.importing'))
   try {
     const mammoth = await import('mammoth')
     const arrayBuffer = await file.arrayBuffer()
@@ -1441,10 +1445,10 @@ async function handleDocxImport(e) {
       activeNote.value.content = doc.body?.innerText || html
     }
     debounceSave()
-    showToast('已导入 Word 文档')
+    showToast(t('note.toast.importedWord'))
   } catch (err) {
     console.error('DOCX import error:', err)
-    showToast('导入 Word 文件失败')
+    showToast(t('note.toast.importWordFailed'))
   }
   e.target.value = ''
 }
@@ -1601,13 +1605,13 @@ async function htmlToDocxParagraphs(html, docx) {
 
 async function exportAsDocx() {
   if (!activeNote.value) return
-  const title = activeNote.value.title || '笔记'
+  const title = activeNote.value.title || t('note.export.defaultTitle')
   const htmlContent = getNoteHtmlContent()
   try {
     const docx = await import('docx')
     const children = await htmlToDocxParagraphs(htmlContent, docx)
     const doc = new docx.Document({
-      creator: 'FloatNote',
+      creator: t('note.export.creator'),
       title,
       sections: [{ children }],
     })
@@ -1618,22 +1622,22 @@ async function exportAsDocx() {
     for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
     const b64 = btoa(binary)
     const result = await invoke('save_binary_file', { title, dataBase64: b64, format: 'docx' })
-    if (result) showToast('已导出: ' + result)
+    if (result) showToast(t('note.toast.exported', { path: result }))
   } catch (err) {
     console.error('DOCX export error:', err)
-    showToast('导出 Word 文件失败')
+    showToast(t('note.toast.exportWordFailed'))
   }
 }
 
 async function exportAsPdf() {
   if (!activeNote.value) return
-  const title = activeNote.value.title || '笔记'
+  const title = activeNote.value.title || t('note.export.defaultTitle')
   const htmlContent = getNoteHtmlContent()
   const fullHtml = wrapHtmlTemplate(title, htmlContent)
   // 打开新窗口打印
   const printWin = window.open('', '_blank', 'width=800,height=600')
   if (!printWin) {
-    showToast('无法打开打印窗口，请允许弹窗')
+    showToast(t('note.toast.printWindowBlocked'))
     return
   }
   printWin.document.write(fullHtml)
@@ -1642,14 +1646,14 @@ async function exportAsPdf() {
     printWin.focus()
     printWin.print()
   }
-  showToast('已打开打印/PDF 窗口')
+  showToast(t('note.toast.printWindowOpened'))
 }
 
 async function doExport(fmt) {
   showExportMenu.value = false
   if (!activeNote.value) return
-  showToast('正在导出...')
-  const title = activeNote.value.title || '笔记'
+  showToast(t('note.toast.exporting'))
+  const title = activeNote.value.title || t('note.export.defaultTitle')
 
   if (fmt === 'docx') { await exportAsDocx(); return }
   if (fmt === 'pdf') { await exportAsPdf(); return }
@@ -1668,12 +1672,12 @@ async function doExport(fmt) {
 
   try {
     const result = await invoke('save_text_file', { title, content, format: fmt })
-    if (result) showToast('已导出: ' + result)
+    if (result) showToast(t('note.toast.exported', { path: result }))
   } catch (e) {
     console.warn('Tauri save failed, fallback to clipboard:', e)
     try {
       await navigator.clipboard.writeText(content)
-      showToast('已复制到剪贴板')
+      showToast(t('note.toast.copiedToClipboard'))
     } catch (e2) {
       console.warn('Clipboard copy failed:', e2)
     }
@@ -1707,7 +1711,7 @@ function loadData() {
     try {
       const oldNotes = JSON.parse(oldRaw)
       oldNotes.forEach(n => { if (!n.color) n.color = NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)] })
-      notebooks.value = [{ id: Date.now(), name: '记事本 1', notes: oldNotes }]
+      notebooks.value = [{ id: Date.now(), name: t('note.book.defaultName1'), notes: oldNotes }]
       writeJSON(NOTES_KEY, notebooks.value)
       localStorage.removeItem('sn-notes')
     } catch {}
@@ -1721,7 +1725,7 @@ function loadData() {
   }
 
   if (!notebooks.value.length) {
-    const book = { id: Date.now(), name: '记事本 1', notes: [] }
+    const book = { id: Date.now(), name: t('note.book.defaultName1'), notes: [] }
     notebooks.value.push(book)
   }
 
@@ -1910,6 +1914,7 @@ onUnmounted(() => {
 defineExpose({
   switchToBook(id) { switchBook(id) },
   addNotebook() { addNotebook() },
+  addNote() { addNote() },
   deleteNotebook(id) { deleteBook(id) },
   reload() { loadData() }
 })
@@ -2616,7 +2621,7 @@ defineExpose({
 }
 
 .note-content-editable:empty::before {
-  content: '开始记录...';
+  content: var(--editor-placeholder, '开始记录...');
   color: var(--text-placeholder);
 }
 

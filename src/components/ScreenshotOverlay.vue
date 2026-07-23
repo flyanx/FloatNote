@@ -38,23 +38,25 @@
 
     <!-- 操作栏 -->
     <div v-if="hasSelection && !isDragging && !isResizing && !isMoving" class="action-bar" :style="actionBarStyle">
-      <button class="action-btn copy-btn" @click.stop="confirmCrop" title="复制 (Enter)">
+      <button class="action-btn copy-btn" @click.stop="confirmCrop" :title="$t('screenshot.copyTitle')">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="20 6 9 17 4 12"/>
         </svg>
-        复制
+        {{ $t('screenshot.copy') }}
       </button>
-      <button class="action-btn cancel-btn" @click.stop="cancel" title="取消 (Esc)">✕</button>
+      <button class="action-btn cancel-btn" @click.stop="cancel" :title="$t('screenshot.cancelTitle')">✕</button>
     </div>
 
     <!-- 提示 -->
     <div v-if="!hasSelection" class="hint-text">
-      拖拽选择截图区域 · Esc 取消
+      {{ $t('screenshot.hint') }}
     </div>
   </div>
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 

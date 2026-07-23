@@ -1,0 +1,325 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "OK",
+    "delete": "Delete",
+    "save": "Save",
+    "rename": "Rename",
+    "new": "New",
+    "color": "Color",
+    "unnamed": "Unnamed",
+    "unknownError": "Unknown error",
+    "cancelShort": "Cancelled"
+  },
+  "app": {
+    "brand": "FloatNote",
+    "tab": {
+      "note": "Notes",
+      "todo": "Todo",
+      "todoPage": "Todo List",
+      "defaultName": "Untitled"
+    },
+    "title": {
+      "cloudSync": "Cloud Sync",
+      "themeOpacity": "Theme / Opacity",
+      "alwaysOnTop": "Always on Top",
+      "classicMode": "Classic Mode",
+      "minimalMode": "Minimal Mode",
+      "minimize": "Minimize",
+      "maximize": "Maximize",
+      "hideToTray": "Hide to Tray",
+      "newTab": "New",
+      "trash": "Trash",
+      "newNotebook": "New Tab",
+      "renameCurrentTab": "Rename Current Tab",
+      "deleteCurrentTab": "Delete Current Tab",
+      "language": "Language"
+    },
+    "ctx": {
+      "unlockTab": "Unlock Tab",
+      "lockTab": "Lock Tab",
+      "deleteTab": "Delete Tab",
+      "confirmDelete": "Confirm delete?",
+      "newNotebook": "New"
+    },
+    "trash": {
+      "subtitle": "Recoverable within 30 days",
+      "restore": "Restore",
+      "permanentDelete": "Delete Permanently",
+      "empty": "Trash is empty"
+    },
+    "modal": {
+      "renameTabTitle": "Rename Tab",
+      "renameTabMessage": "Rename tab:",
+      "renameTabPlaceholder": "Enter new name...",
+      "deleteTabTitle": "Delete Tab",
+      "deleteTabMessage": "Are you sure you want to delete \"{name}\"?"
+    },
+    "theme": {
+      "light": { "name": "Light", "desc": "Clean white" },
+      "dark": { "name": "Dark", "desc": "Night mode" },
+      "sepia": { "name": "Sepia", "desc": "Warm paper" },
+      "mint": { "name": "Mint", "desc": "Fresh & easy" },
+      "sakura": { "name": "Sakura", "desc": "Soft & gentle" },
+      "haze": { "name": "Haze", "desc": "Morning mist" },
+      "latte": { "name": "Latte", "desc": "Milky & soft" },
+      "espresso": { "name": "Espresso", "desc": "Cafe vibe" }
+    },
+    "lang": {
+      "zh": "中文",
+      "en": "English"
+    }
+  },
+  "note": {
+    "sidebar": {
+      "addNew": "New",
+      "addNewTitle": "New Note",
+      "hideTitle": "Hide Sidebar",
+      "showTitle": "Show Sidebar"
+    },
+    "item": {
+      "untitled": "Untitled",
+      "deleteTitle": "Delete"
+    },
+    "empty": {
+      "noMatch": "No matching notes",
+      "noNotes": "No notes yet. Click \"New\" above to start.",
+      "clickToAdd": "Click + on the left to create a note"
+    },
+    "search": {
+      "placeholder": "Search notes..."
+    },
+    "ctx": {
+      "unpin": "Unpin",
+      "pin": "Pin Note",
+      "moveUpTitle": "Move Up",
+      "moveDownTitle": "Move Down",
+      "sortLabel": "Sort"
+    },
+    "editor": {
+      "titlePlaceholder": "Title...",
+      "richModeTitle": "Rich Text Mode",
+      "markdownModeTitle": "Markdown Mode",
+      "startTyping": "Start typing..."
+    },
+    "screenshot": {
+      "title": "Screenshot",
+      "direct": "Screenshot",
+      "hide": "Screenshot (Hidden)",
+      "hotkeyLabel": "Hotkey",
+      "hotkeyPlaceholder": "Click to set hotkey..."
+    },
+    "io": {
+      "importTitle": "Import",
+      "exportTitle": "Export",
+      "markdown": "Markdown",
+      "plainText": "Plain Text",
+      "htmlPage": "HTML Page",
+      "wordDoc": "Word Document",
+      "pdfDoc": "PDF Document"
+    },
+    "toolbar": {
+      "fontSizeTitle": "Font Size",
+      "fontSizeDefault": "Size",
+      "fontSizeSmall": "Small 10px",
+      "fontSizeMedium": "Medium 13px",
+      "fontSizeNormal": "Normal 16px",
+      "fontSizeLarge": "Large 18px",
+      "fontSizeXLarge": "X-Large 24px",
+      "fontSizeXXLarge": "XX-Large 32px",
+      "fontSizeMax": "Max 48px",
+      "boldTitle": "Bold (Ctrl+B)",
+      "italicTitle": "Italic (Ctrl+I)",
+      "underlineTitle": "Underline (Ctrl+U)",
+      "strikeTitle": "Strikethrough",
+      "clearFormatTitle": "Clear Formatting",
+      "undoTitle": "Undo (Ctrl+Z)",
+      "redoTitle": "Redo (Ctrl+Y)",
+      "listTitle": "List",
+      "unorderedList": "Bullet List",
+      "orderedList": "Numbered List",
+      "insertLinkTitle": "Insert Link",
+      "fontColorTitle": "Font Color",
+      "insertImageTitle": "Insert Image",
+      "insertTableTitle": "Insert Table"
+    },
+    "markdown": {
+      "tabEdit": "Edit",
+      "tabPreview": "Preview",
+      "placeholder": "Supports Markdown syntax...",
+      "imageHint": "Image syntax: ![alt](url \"=widthpx align\") e.g. ![img](img.png \"=300 center\")"
+    },
+    "footer": {
+      "statsTitle": "Chars / Words / Lines | Read time",
+      "charUnit": "chars",
+      "wordUnit": "words",
+      "lineUnit": "lines",
+      "readTimePrefix": "about"
+    },
+    "readTime": {
+      "minute": "{n} min",
+      "hourMinute": "{h} hr {m} min",
+      "zero": "0 min"
+    },
+    "drag": {
+      "releaseToInsert": "Release to insert image"
+    },
+    "image": {
+      "alignLeftTitle": "Align Left",
+      "alignCenterTitle": "Center",
+      "alignRightTitle": "Align Right"
+    },
+    "save": {
+      "saving": "Saving...",
+      "saved": "Saved"
+    },
+    "book": {
+      "defaultName": "Notebook {n}",
+      "defaultName1": "Notebook 1"
+    },
+    "preview": {
+      "empty": "No content"
+    },
+    "link": {
+      "promptUrl": "Enter link URL:"
+    },
+    "table": {
+      "headerCell": "Header"
+    },
+    "toast": {
+      "screenshotFailed": "Screenshot failed: {error}",
+      "importedFiles": "Imported {count} file(s)",
+      "importing": "Importing...",
+      "importedFile": "File imported",
+      "importedWord": "Word document imported",
+      "importWordFailed": "Failed to import Word file",
+      "exported": "Exported: {path}",
+      "exportWordFailed": "Failed to export Word file",
+      "printWindowBlocked": "Cannot open print window, please allow pop-ups",
+      "printWindowOpened": "Print/PDF window opened",
+      "exporting": "Exporting...",
+      "copiedToClipboard": "Copied to clipboard"
+    },
+    "export": {
+      "defaultTitle": "Note",
+      "creator": "FloatNote"
+    }
+  },
+  "todo": {
+    "placeholder": {
+      "addTodo": "Add todo...",
+      "addSubtask": "Add subtask...",
+      "noteContent": "Enter note..."
+    },
+    "title": {
+      "setDueDate": "Set Due Date",
+      "add": "Add",
+      "collapseFilter": "Collapse Filter",
+      "expandFilter": "Expand Filter",
+      "clearAllDone": "Clear All Completed",
+      "uncomplete": "Uncomplete",
+      "markDone": "Mark Done",
+      "addNote": "Add Note",
+      "deleteSubtask": "Delete Subtask"
+    },
+    "action": {
+      "clearDone": "Clear"
+    },
+    "filter": {
+      "label": "Filter"
+    },
+    "note": {
+      "hasNote": "Has note",
+      "label": "Note"
+    },
+    "empty": {
+      "noTodos": "No todo items yet",
+      "noMatch": "No matching todos"
+    },
+    "context": {
+      "rename": "Rename",
+      "prioritySubtitle": "Priority",
+      "modifyDate": "Modify Date",
+      "clearDate": "Clear Date",
+      "deleteTask": "Delete Task"
+    },
+    "priority": {
+      "high": "High",
+      "mid": "Medium",
+      "low": "Low"
+    },
+    "filterStatus": {
+      "all": "All",
+      "allShort": "All",
+      "pending": "Pending",
+      "pendingShort": "Pend",
+      "done": "Done",
+      "doneShort": "Done"
+    },
+    "list": {
+      "defaultName": "Todo List 1",
+      "newName": "Todo List {n}"
+    },
+    "date": {
+      "overdue": "Overdue",
+      "dueToday": "Due today",
+      "dueTomorrow": "Due tomorrow",
+      "daysRemaining": "{n} days left"
+    }
+  },
+  "sync": {
+    "title": "Cloud Sync",
+    "pushToCloud": "Push to Cloud",
+    "pullFromCloud": "Pull from Cloud",
+    "retry": "Retry",
+    "localBackup": "Local Backup",
+    "exportJson": "Export JSON",
+    "importJson": "Import JSON",
+    "supabaseSettings": "Supabase Settings",
+    "openDashboard": "Open Supabase Dashboard",
+    "saveConfig": "Save Config",
+    "testConnection": "Test Connection",
+    "pushing": "Pushing...",
+    "pulling": "Pulling...",
+    "testing": "Testing...",
+    "fillUrlAndKey": "Please fill in URL and API Key",
+    "configSaved": "Config saved",
+    "notConfigured": "Please configure Supabase URL and API Key first",
+    "notConfiguredShort": "Please fill in URL and API Key first",
+    "pushSuccess": "Push successful",
+    "pushFailed": "Push failed: {error}",
+    "pullSuccess": "Pull successful (cloud time: {time})",
+    "pullFailed": "Pull failed: {error}",
+    "noCloudData": "No cloud data yet. Click \"Push to Cloud\" first.",
+    "invalidCloudFormat": "Invalid cloud data format",
+    "restoredItems": "Restored {count} item(s)",
+    "invalidFormat": "Invalid format: missing data field",
+    "invalidFormatNotBackup": "Invalid format: missing data field\nThis is not a FloatNote backup file",
+    "exportTitle": "Export Backup File",
+    "jsonFilter": "JSON File",
+    "importTitle": "Select Backup File",
+    "exportedTo": "Exported to: {path}",
+    "exportFailed": "Export failed: {error}",
+    "importFailed": "Import failed: {error}",
+    "invalidJson": "Invalid file: not valid JSON",
+    "importConfirmTitle": "Importing will overwrite all local data!\n\nBackup time: {time}\nData items: {count}\n\nAre you sure?",
+    "tableNotExist": "Connected, but app_data table does not exist.\nPlease run the setup SQL in Supabase SQL Editor.",
+    "apiKeyInvalid": "API Key is invalid or insufficient permissions.\nPlease check the key or try regenerating it.",
+    "connectionOk": "Connected! No data pushed yet. Click \"Push to Cloud\" to create.",
+    "connectionOkWithTime": "Connected! Last updated: {time}",
+    "connectionFailed": "Connection failed: {error}",
+    "unknownTime": "Unknown",
+    "noTime": "None"
+  },
+  "screenshot": {
+    "loading": "Loading screenshot...",
+    "copy": "Copy",
+    "copyTitle": "Copy (Enter)",
+    "cancelTitle": "Cancel (Esc)",
+    "hint": "Drag to select area · Esc to cancel"
+  },
+  "date": {
+    "today": "Today",
+    "yesterday": "Yesterday"
+  }
+}

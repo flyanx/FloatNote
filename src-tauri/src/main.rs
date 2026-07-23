@@ -17,9 +17,9 @@ use std::{
 
 #[cfg(desktop)]
 use tauri::{
-    menu::{Menu, MenuItem},
+    menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    Manager, WindowEvent,
+    Emitter, Manager, WindowEvent,
 };
 
 #[cfg(desktop)]
@@ -137,6 +137,45 @@ fn save_binary_file(title: String, data_base64: String, format: String) -> Resul
 #[tauri::command]
 fn set_skip_taskbar(window: tauri::WebviewWindow, skip: bool) -> Result<(), String> {
     window.set_skip_taskbar(skip).map_err(|e| format!("set_skip_taskbar failed: {}", e))
+}
+
+/// 设置窗口原生透明度 (0.0 - 1.0)
+/// 通过 Windows API SetLayeredWindowAttributes 实现
+#[tauri::command]
+fn set_window_opacity(window: tauri::Window, opacity: f64) -> Result<(), String> {
+    let clamped = opacity.clamp(0.1, 1.0);
+
+    #[cfg(target_os = "windows")]
+    {
+        use raw_window_handle::{HasWindowHandle, RawWindowHandle};
+        use windows::Win32::UI::WindowsAndMessaging::{SetLayeredWindowAttributes, LWA_ALPHA, GetWindowLongPtrW, SetWindowLongPtrW, GWL_EXSTYLE, WS_EX_LAYERED};
+        use windows::Win32::Foundation::HWND;
+
+        let handle = window.window_handle().map_err(|e| format!("get window handle: {}", e))?;
+        match handle.as_raw() {
+            RawWindowHandle::Win32(win32) => {
+                let hwnd = HWND(win32.hwnd.get() as *mut _);
+                let alpha = (clamped * 255.0).round() as u8;
+                unsafe {
+                    let ex = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+                    if (ex & WS_EX_LAYERED.0 as isize) == 0 {
+                        SetWindowLongPtrW(hwnd, GWL_EXSTYLE, ex | WS_EX_LAYERED.0 as isize);
+                    }
+                    SetLayeredWindowAttributes(hwnd, None, alpha, LWA_ALPHA)
+                        .map_err(|e| format!("SetLayeredWindowAttributes: {}", e))?;
+                }
+                Ok(())
+            }
+            _ => Err("unsupported platform".to_string()),
+        }
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = window;
+        let _ = clamped;
+        Err("unsupported platform".to_string())
+    }
 }
 
 /// 获取主显示器尺寸（用于截图全屏覆盖）
@@ -420,6 +459,7 @@ fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             save_markdown_file, save_text_file, save_binary_file, set_skip_taskbar,
+            set_window_opacity,
             capture_screen, finish_region_screenshot, cancel_region_screenshot,
             get_screenshot_data, get_screen_size, close_screenshot_window,
             supabase_request,
@@ -446,9 +486,16 @@ fn run() {
             *state.single_instance_listener.lock().unwrap() = Some(listener);
 
             // System tray
+            let add_note_item = MenuItem::with_id(app, "add_note", "新建笔记", true, None::<&str>)?;
+            let add_todo_item = MenuItem::with_id(app, "add_todo", "新建待办", true, None::<&str>)?;
+            let separator = PredefinedMenuItem::separator(app)?;
             let show_item = MenuItem::with_id(app, "show", "显示窗口", true, None::<&str>)?;
             let quit_item = MenuItem::with_id(app, "quit", "退出笺记", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&show_item, &quit_item])?;
+            let menu = Menu::with_items(app, &[
+                &add_note_item, &add_todo_item,
+                &separator,
+                &show_item, &quit_item,
+            ])?;
 
             fn restore_window(app: &tauri::AppHandle) {
                 if let Some(window) = app.get_webview_window("main") {
@@ -465,6 +512,14 @@ fn run() {
                 .on_menu_event(|app, event| {
                     match event.id().as_ref() {
                         "show" => restore_window(app),
+                        "add_note" => {
+                            restore_window(app);
+                            let _ = app.emit("tray-action", "add_note");
+                        }
+                        "add_todo" => {
+                            restore_window(app);
+                            let _ = app.emit("tray-action", "add_todo");
+                        }
                         "quit" => { app.exit(0); }
                         _ => {}
                     }
@@ -489,6 +544,18 @@ fn run() {
 
             let state = app.state::<TrayState>();
             *state.tray.lock().unwrap() = Some(tray);
+
+            // Safety net: if frontend fails to call show() within 3s, force show
+            {
+                let handle = app.handle().clone();
+                thread::spawn(move || {
+                    thread::sleep(Duration::from_secs(3));
+                    if let Some(window) = handle.get_webview_window("main") {
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                    }
+                });
+            }
 
             // Window events: close-to-tray + desktop notifications
             if let Some(window) = app.get_webview_window("main") {

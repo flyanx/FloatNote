@@ -7,7 +7,7 @@
           ref="todoInputEl"
           class="todo-input selectable"
           v-model="newText"
-          placeholder="添加待办..."
+          :placeholder="$t('todo.placeholder.addTodo')"
           @keydown.enter.prevent="addTodo"
           maxlength="200"
         />
@@ -25,7 +25,7 @@
         </div>
         <!-- 日期选择 -->
         <div class="date-picker-inline">
-          <button class="date-pick-btn" :class="{ 'has-date': newDate }" @click="openDatePicker" title="设置到期日">
+          <button class="date-pick-btn" :class="{ 'has-date': newDate }" @click="openDatePicker" :title="$t('todo.title.setDueDate')">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
@@ -33,7 +33,7 @@
           <input ref="hiddenDateEl" type="date" class="hidden-date-input" @change="onDatePicked" />
         </div>
         <!-- 添加按钮 -->
-        <button class="add-btn" @click="addTodo" :disabled="!newText.trim()" title="添加">
+        <button class="add-btn" @click="addTodo" :disabled="!newText.trim()" :title="$t('todo.title.add')">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
@@ -44,7 +44,7 @@
     <!-- ===== 筛选栏（向上折叠） ===== -->
     <transition name="filter-collapse">
       <div class="filter-bar" v-if="filterVisible">
-        <button class="filter-toggle-btn" @click="filterVisible = false" title="收起筛选">
+        <button class="filter-toggle-btn" @click="filterVisible = false" :title="$t('todo.title.collapseFilter')">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="18 15 12 9 6 15"/>
           </svg>
@@ -75,8 +75,8 @@
         </div>
         <div class="filter-spacer"></div>
         <!-- 清除已完成 -->
-        <button class="clear-done-btn" @click="clearDone" v-if="doneCount > 0" title="清除所有已完成">
-          清除 {{ doneCount }}
+        <button class="clear-done-btn" @click="clearDone" v-if="doneCount > 0" :title="$t('todo.title.clearAllDone')">
+          {{ $t('todo.action.clearDone') }} {{ doneCount }}
         </button>
       </div>
     </transition>
@@ -84,11 +84,11 @@
     <!-- ===== 进度条 + 浮动筛选按钮 ===== -->
     <div class="progress-section" v-if="allTodos.length > 0 || !filterVisible">
       <!-- 筛选栏收起时，浮动小按钮（放在左侧） -->
-      <button v-if="!filterVisible" class="filter-float-btn" @click="filterVisible = true" title="展开筛选">
+      <button v-if="!filterVisible" class="filter-float-btn" @click="filterVisible = true" :title="$t('todo.title.expandFilter')">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
         </svg>
-        <span class="filter-float-label">筛选</span>
+        <span class="filter-float-label">{{ $t('todo.filter.label') }}</span>
         <span v-if="statusFilter !== 'all' || priorityFilter !== 'all'" class="filter-active-dot"></span>
       </button>
       <div class="progress-bar" v-if="allTodos.length > 0">
@@ -121,7 +121,7 @@
               class="task-check"
               :class="{ checked: task.done }"
               @click.stop="toggleDone(task)"
-              :title="task.done ? '取消完成' : '标记完成'"
+              :title="task.done ? $t('todo.title.uncomplete') : $t('todo.title.markDone')"
             >
               <svg v-if="task.done" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
                 <polyline points="20 6 9 17 4 12"/>
@@ -149,7 +149,7 @@
                 {{ formatDue(task) }}
               </span>
               <!-- 优先级圆点 -->
-              <span class="task-priority-dot" :class="'pri-' + (task.priority || 'mid')" v-if="!task.done" :title="'优先级: ' + (task.priority === 'high' ? '高' : task.priority === 'low' ? '低' : '中')"></span>
+              <span class="task-priority-dot" :class="'pri-' + (task.priority || 'mid')" v-if="!task.done" :title="$t('todo.context.prioritySubtitle') + ': ' + (task.priority === 'high' ? $t('todo.priority.high') : task.priority === 'low' ? $t('todo.priority.low') : $t('todo.priority.mid'))"></span>
               <!-- 展开指示 + 子任务进度 -->
               <span class="task-expand-group" v-if="task.subtasks && task.subtasks.length">
                 <svg class="task-expand-icon" :class="{ open: expandedId === task.id }" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -160,8 +160,8 @@
                 </span>
               </span>
               <!-- 备注指示 -->
-              <span class="task-note-tag" v-if="task.note" :title="task.note" @click.stop="toggleNotePanel(task)">有备注</span>
-              <span class="task-note-tag empty" v-else @click.stop="toggleNotePanel(task)" title="添加备注">备注</span>
+              <span class="task-note-tag" v-if="task.note" :title="task.note" @click.stop="toggleNotePanel(task)">{{ $t('todo.note.hasNote') }}</span>
+              <span class="task-note-tag empty" v-else @click.stop="toggleNotePanel(task)" :title="$t('todo.title.addNote')">{{ $t('todo.note.label') }}</span>
             </div>
           </div>
 
@@ -175,8 +175,8 @@
                   </svg>
                 </button>
                 <span class="subtask-text" :class="{ 'line-through': sub.done }">{{ sub.text }}</span>
-                <span class="task-note-tag sub" v-if="sub.note" :title="sub.note">有备注</span>
-                <button class="subtask-del-btn" @click.stop="removeSubtask(task, si)" title="删除子任务">
+                <span class="task-note-tag sub" v-if="sub.note" :title="sub.note">{{ $t('todo.note.hasNote') }}</span>
+                <button class="subtask-del-btn" @click.stop="removeSubtask(task, si)" :title="$t('todo.title.deleteSubtask')">
                   <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                   </svg>
@@ -191,7 +191,7 @@
               <input
                 class="subtask-input selectable"
                 v-model="subInputs[task.id]"
-                :placeholder="task.subtasks?.length ? '添加子任务...' : '添加子任务...'"
+                :placeholder="$t('todo.placeholder.addSubtask')"
                 @keydown.enter.prevent="addSubtask(task)"
                 maxlength="150"
               />
@@ -207,14 +207,14 @@
           <transition name="subtask-slide">
             <div class="task-note-panel" v-if="notePanelTaskId === task.id" @click.stop>
               <div class="task-note-panel-header">
-                <span>备注</span>
+                <span>{{ $t('todo.note.label') }}</span>
                 <button class="task-note-close" @click="notePanelTaskId = null">×</button>
               </div>
               <textarea
                 class="task-note-textarea selectable"
                 v-model="notePanelText"
                 @input="onNotePanelInput"
-                placeholder="输入备注内容..."
+                :placeholder="$t('todo.placeholder.noteContent')"
                 rows="3"
                 maxlength="500"
               ></textarea>
@@ -226,8 +226,8 @@
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.2">
           <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
         </svg>
-        <p v-if="allTodos.length === 0">还没有待办事项</p>
-        <p v-else>没有匹配的待办</p>
+        <p v-if="allTodos.length === 0">{{ $t('todo.empty.noTodos') }}</p>
+        <p v-else>{{ $t('todo.empty.noMatch') }}</p>
       </div>
     </div>
 
@@ -243,11 +243,11 @@
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
           </svg>
-          重命名
+          {{ $t('todo.context.rename') }}
         </button>
         <div class="ctx-menu-divider"></div>
         <!-- 优先级 -->
-        <div class="ctx-menu-subtitle">优先级</div>
+        <div class="ctx-menu-subtitle">{{ $t('todo.context.prioritySubtitle') }}</div>
         <div class="ctx-priority-row">
           <button
             v-for="p in priorities"
@@ -264,20 +264,20 @@
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
           </svg>
-          {{ taskCtxMenu.task?.dueDate ? '修改日期' : '设置到期日' }}
+          {{ taskCtxMenu.task?.dueDate ? $t('todo.context.modifyDate') : $t('todo.title.setDueDate') }}
         </button>
         <button v-if="taskCtxMenu.task?.dueDate" class="ctx-menu-item" @click="clearDueDate">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="9"/><line x1="8" y1="12" x2="16" y2="12"/>
           </svg>
-          清除日期
+          {{ $t('todo.context.clearDate') }}
         </button>
         <div class="ctx-menu-divider"></div>
         <button class="ctx-menu-item danger" @click="deleteTaskFromCtx">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
           </svg>
-          删除任务
+          {{ $t('todo.context.deleteTask') }}
         </button>
       </div>
     </transition>
@@ -286,6 +286,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { readJSON, writeJSON } from '../utils/storage.js'
 import { addItemToTrash } from '../utils/trash.js'
 import { generateId } from '../utils/id.js'
@@ -293,25 +294,27 @@ import { useDragSort } from '../composables/useDragSort.js'
 import { useContextMenu } from '../composables/useContextMenu.js'
 import { useInlineRename } from '../composables/useInlineRename.js'
 
+const { t } = useI18n()
+
 // ===== 常量 =====
 const TODOLISTS_KEY = 'sn-todolists'
 
-const priorities = [
-  { val: 'high', label: '高', color: '#e8453c' },
-  { val: 'mid', label: '中', color: '#f59e0b' },
-  { val: 'low', label: '低', color: '#22c55e' }
-]
-const statusFilters = [
-  { val: 'all', label: '全部', short: '全' },
-  { val: 'pending', label: '待完成', short: '待' },
-  { val: 'done', label: '已完成', short: '完' }
-]
-const priorityFilters = [
-  { val: 'all', label: '全部', short: '全', color: '' },
-  { val: 'high', label: '高', short: '高', color: '#e8453c' },
-  { val: 'mid', label: '中', short: '中', color: '#f59e0b' },
-  { val: 'low', label: '低', short: '低', color: '#22c55e' }
-]
+const priorities = computed(() => [
+  { val: 'high', label: t('todo.priority.high'), color: '#e8453c' },
+  { val: 'mid', label: t('todo.priority.mid'), color: '#f59e0b' },
+  { val: 'low', label: t('todo.priority.low'), color: '#22c55e' }
+])
+const statusFilters = computed(() => [
+  { val: 'all', label: t('todo.filterStatus.all'), short: t('todo.filterStatus.allShort') },
+  { val: 'pending', label: t('todo.filterStatus.pending'), short: t('todo.filterStatus.pendingShort') },
+  { val: 'done', label: t('todo.filterStatus.done'), short: t('todo.filterStatus.doneShort') }
+])
+const priorityFilters = computed(() => [
+  { val: 'all', label: t('todo.filterStatus.all'), short: t('todo.filterStatus.allShort'), color: '' },
+  { val: 'high', label: t('todo.priority.high'), short: t('todo.priority.high'), color: '#e8453c' },
+  { val: 'mid', label: t('todo.priority.mid'), short: t('todo.priority.mid'), color: '#f59e0b' },
+  { val: 'low', label: t('todo.priority.low'), short: t('todo.priority.low'), color: '#22c55e' }
+])
 
 // ===== 状态 =====
 const lists = ref([])
@@ -375,7 +378,7 @@ function saveLists() {
 }
 
 function addTodoList() {
-  const list = { id: Date.now(), name: `待办页 ${lists.value.length + 1}`, todos: [] }
+  const list = { id: Date.now(), name: t('todo.list.newName', { n: lists.value.length + 1 }), todos: [] }
   lists.value.push(list)
   activeListId.value = list.id
   saveLists()
@@ -535,10 +538,10 @@ function formatDue(task) {
   const due = new Date(task.dueDate)
   const now = new Date(today.value)
   const diff = Math.round((due - now) / 86400000)
-  if (diff < 0) return '已过期'
-  if (diff === 0) return '今天到期'
-  if (diff === 1) return '明天到期'
-  return `还剩 ${diff} 天`
+  if (diff < 0) return t('todo.date.overdue')
+  if (diff === 0) return t('todo.date.dueToday')
+  if (diff === 1) return t('todo.date.dueTomorrow')
+  return t('todo.date.daysRemaining', { n: diff })
 }
 
 function isOverdue(task) {
@@ -684,7 +687,7 @@ onMounted(() => {
   }
   if (!activeListId.value && lists.value.length === 0) {
     // 创建默认待办页
-    const defaultList = { id: Date.now(), name: '待办页 1', todos: [] }
+    const defaultList = { id: Date.now(), name: t('todo.list.defaultName'), todos: [] }
     lists.value.push(defaultList)
     activeListId.value = defaultList.id
     saveLists()
@@ -720,7 +723,7 @@ function reload() {
 }
 
 // 暴露给父组件
-defineExpose({ addTodoList, switchToList, deleteTodoList, reload })
+defineExpose({ addTodoList, addTodo, switchToList, deleteTodoList, reload })
 </script>
 
 <style scoped>

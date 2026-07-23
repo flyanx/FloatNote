@@ -7,6 +7,7 @@ import { save, open } from '@tauri-apps/plugin-dialog'
 import { writeTextFile, readTextFile } from '@tauri-apps/plugin-fs'
 import { invoke } from '@tauri-apps/api/core'
 import { syncState, getSupabaseConfig } from './syncState.js'
+import i18n from '../i18n/index.js'
 
 // ===== localStorage 需要同步的所有键 =====
 const SYNC_KEYS = [
@@ -32,7 +33,7 @@ const SYNC_KEYS = [
 function safeErrorMessage(e) {
   if (typeof e === 'string') return e
   if (e?.message) return e.message
-  try { return String(e) } catch { return '未知错误' }
+  try { return String(e) } catch { return i18n.global.t('common.unknownError') }
 }
 
 /**
@@ -96,7 +97,7 @@ export function collectLocalData() {
  */
 export function applyRemoteData(payload) {
   if (!payload || !payload.data) {
-    return { success: false, message: '数据格式无效：缺少 data 字段' }
+    return { success: false, message: i18n.global.t('sync.invalidFormat') }
   }
 
   const data = payload.data
@@ -114,7 +115,7 @@ export function applyRemoteData(payload) {
     detail: { timestamp: Date.now() }
   }))
 
-  return { success: true, message: `已恢复 ${count} 项数据` }
+  return { success: true, message: i18n.global.t('sync.restoredItems', { count }) }
 }
 
 // ===== Supabase 推送 =====
@@ -126,7 +127,7 @@ export function applyRemoteData(payload) {
 export async function pushToCloud() {
   const config = getSupabaseConfig()
   if (!config.configured) {
-    return { success: false, message: '请先配置 Supabase URL 和 API Key' }
+    return { success: false, message: i18n.global.t('sync.notConfigured') }
   }
 
   syncState.status = 'syncing'
@@ -151,11 +152,11 @@ export async function pushToCloud() {
     syncState.lastSyncTime = Date.now()
     localStorage.setItem('sn-last-sync-time', String(syncState.lastSyncTime))
 
-    return { success: true, message: '推送成功' }
+    return { success: true, message: i18n.global.t('sync.pushSuccess') }
   } catch (e) {
     syncState.status = 'error'
     syncState.errorMessage = safeErrorMessage(e)
-    return { success: false, message: `推送失败: ${safeErrorMessage(e)}` }
+    return { success: false, message: i18n.global.t('sync.pushFailed', { error: safeErrorMessage(e) }) }
   }
 }
 
@@ -168,7 +169,7 @@ export async function pushToCloud() {
 export async function pullFromCloud() {
   const config = getSupabaseConfig()
   if (!config.configured) {
-    return { success: false, message: '请先配置 Supabase URL 和 API Key' }
+    return { success: false, message: i18n.global.t('sync.notConfigured') }
   }
 
   syncState.status = 'syncing'
@@ -186,13 +187,13 @@ export async function pullFromCloud() {
     const rows = Array.isArray(res.body) ? res.body : []
     if (rows.length === 0) {
       syncState.status = 'idle'
-      return { success: false, message: '云端暂无数据，请先点击「推送到云端」' }
+      return { success: false, message: i18n.global.t('sync.noCloudData') }
     }
 
     const { payload, updated_at } = rows[0]
     if (!payload || !payload.data) {
       syncState.status = 'idle'
-      return { success: false, message: '云端数据格式无效' }
+      return { success: false, message: i18n.global.t('sync.invalidCloudFormat') }
     }
 
     const result = applyRemoteData(payload)
@@ -202,12 +203,12 @@ export async function pullFromCloud() {
     syncState.lastSyncTime = Date.now()
     localStorage.setItem('sn-last-sync-time', String(syncState.lastSyncTime))
 
-    const serverTime = updated_at ? new Date(updated_at).toLocaleString('zh-CN') : '未知'
-    return { success: true, message: `拉取成功 (云端时间: ${serverTime})` }
+    const serverTime = updated_at ? new Date(updated_at).toLocaleString('zh-CN') : i18n.global.t('sync.unknownTime')
+    return { success: true, message: i18n.global.t('sync.pullSuccess', { time: serverTime }) }
   } catch (e) {
     syncState.status = 'error'
     syncState.errorMessage = safeErrorMessage(e)
-    return { success: false, message: `拉取失败: ${safeErrorMessage(e)}` }
+    return { success: false, message: i18n.global.t('sync.pullFailed', { error: safeErrorMessage(e) }) }
   }
 }
 
@@ -227,19 +228,19 @@ export async function exportToJsonFile() {
     const defaultName = `floatnote-backup-${dateStr}.json`
 
     const filePath = await save({
-      title: '导出备份文件',
+      title: i18n.global.t('sync.exportTitle'),
       defaultPath: defaultName,
-      filters: [{ name: 'JSON 文件', extensions: ['json'] }],
+      filters: [{ name: i18n.global.t('sync.jsonFilter'), extensions: ['json'] }],
     })
 
     if (!filePath) {
-      return { success: false, message: '已取消' }
+      return { success: false, message: i18n.global.t('common.cancelShort') }
     }
 
     await writeTextFile(filePath, jsonStr)
-    return { success: true, message: `已导出到: ${filePath}` }
+    return { success: true, message: i18n.global.t('sync.exportedTo', { path: filePath }) }
   } catch (e) {
-    return { success: false, message: `导出失败: ${safeErrorMessage(e)}` }
+    return { success: false, message: i18n.global.t('sync.exportFailed', { error: safeErrorMessage(e) }) }
   }
 }
 
@@ -252,13 +253,13 @@ export async function exportToJsonFile() {
 export async function importFromJsonFile() {
   try {
     const filePath = await open({
-      title: '选择备份文件',
-      filters: [{ name: 'JSON 文件', extensions: ['json'] }],
+      title: i18n.global.t('sync.importTitle'),
+      filters: [{ name: i18n.global.t('sync.jsonFilter'), extensions: ['json'] }],
       multiple: false,
     })
 
     if (!filePath) {
-      return { success: false, message: '已取消' }
+      return { success: false, message: i18n.global.t('common.cancelShort') }
     }
 
     const content = await readTextFile(filePath)
@@ -266,30 +267,29 @@ export async function importFromJsonFile() {
     try {
       payload = JSON.parse(content)
     } catch {
-      return { success: false, message: '文件格式错误：不是有效的 JSON' }
+      return { success: false, message: i18n.global.t('sync.invalidJson') }
     }
 
     // 校验数据格式
     if (!payload.data) {
-      return { success: false, message: '数据格式无效：缺少 data 字段\n这不是 FloatNote 的备份文件' }
+      return { success: false, message: i18n.global.t('sync.invalidFormatNotBackup') }
     }
 
     // 确认覆盖
+    const backupTime = payload._meta?.exportedAt ? new Date(payload._meta.exportedAt).toLocaleString('zh-CN') : i18n.global.t('sync.unknownTime')
+    const dataCount = Object.keys(payload.data).length
     const confirmed = window.confirm(
-      '导入将覆盖当前所有本地数据！\n\n' +
-      `备份时间: ${payload._meta?.exportedAt ? new Date(payload._meta.exportedAt).toLocaleString('zh-CN') : '未知'}\n` +
-      `数据项数: ${Object.keys(payload.data).length} 项\n\n` +
-      '确定要继续吗？'
+      i18n.global.t('sync.importConfirmTitle', { time: backupTime, count: dataCount })
     )
 
     if (!confirmed) {
-      return { success: false, message: '已取消' }
+      return { success: false, message: i18n.global.t('common.cancelShort') }
     }
 
     const result = applyRemoteData(payload)
     return result
   } catch (e) {
-    return { success: false, message: `导入失败: ${safeErrorMessage(e)}` }
+    return { success: false, message: i18n.global.t('sync.importFailed', { error: safeErrorMessage(e) }) }
   }
 }
 
@@ -302,7 +302,7 @@ export async function importFromJsonFile() {
 export async function testConnection() {
   const config = getSupabaseConfig()
   if (!config.configured) {
-    return { success: false, message: '请先填写 URL 和 API Key' }
+    return { success: false, message: i18n.global.t('sync.notConfiguredShort') }
   }
 
   const testURL = `${config.url}/rest/v1/app_data?id=eq.main&select=id,updated_at`
@@ -313,10 +313,10 @@ export async function testConnection() {
     if (!res.ok) {
       const errBody = typeof res.body === 'object' ? JSON.stringify(res.body) : res.body
       if (res.status === 404 || (typeof errBody === 'string' && (errBody.includes('relation') || errBody.includes('does not exist')))) {
-        return { success: false, message: '连接成功，但 app_data 表不存在。\n请在 Supabase SQL Editor 中执行建表 SQL。' }
+        return { success: false, message: i18n.global.t('sync.tableNotExist') }
       }
       if (res.status === 401 || res.status === 403) {
-        return { success: false, message: 'API Key 无效或权限不足。\n请检查 Key 是否正确，或尝试重新生成。' }
+        return { success: false, message: i18n.global.t('sync.apiKeyInvalid') }
       }
       return { success: false, message: `HTTP ${res.status}: ${errBody}` }
     }
@@ -324,14 +324,14 @@ export async function testConnection() {
     const rows = Array.isArray(res.body) ? res.body : []
 
     if (rows.length === 0) {
-      return { success: true, message: '连接正常！尚未推送过数据，点击「推送到云端」即可自动创建。' }
+      return { success: true, message: i18n.global.t('sync.connectionOk') }
     }
 
     const updated = rows[0].updated_at
       ? new Date(rows[0].updated_at).toLocaleString('zh-CN')
-      : '无'
-    return { success: true, message: `连接正常！上次更新: ${updated}` }
+      : i18n.global.t('sync.noTime')
+    return { success: true, message: i18n.global.t('sync.connectionOkWithTime', { time: updated }) }
   } catch (e) {
-    return { success: false, message: `连接失败: ${safeErrorMessage(e)}` }
+    return { success: false, message: i18n.global.t('sync.connectionFailed', { error: safeErrorMessage(e) }) }
   }
 }

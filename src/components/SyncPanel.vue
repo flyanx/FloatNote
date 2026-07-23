@@ -5,7 +5,7 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
       </svg>
-      <span>云同步</span>
+      <span>{{ $t('sync.title') }}</span>
       <span class="sync-time" v-if="syncState.lastSyncTime">
         {{ formatDateTime(syncState.lastSyncTime) }}
       </span>
@@ -21,7 +21,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
         </svg>
-        推送到云端
+        {{ $t('sync.pushToCloud') }}
       </button>
       <button
         class="sync-btn pull-btn"
@@ -31,18 +31,18 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
         </svg>
-        从云端拉取
+        {{ $t('sync.pullFromCloud') }}
       </button>
     </div>
 
     <!-- 状态消息 -->
     <div class="sync-msg" v-if="msg" :class="msgType">
       {{ msg }}
-      <button v-if="msgType === 'error' && lastAction" class="retry-btn" @click="doRetry">重试</button>
+      <button v-if="msgType === 'error' && lastAction" class="retry-btn" @click="doRetry">{{ $t('sync.retry') }}</button>
     </div>
 
     <!-- 分隔线 -->
-    <div class="sync-divider">本地备份</div>
+    <div class="sync-divider">{{ $t('sync.localBackup') }}</div>
 
     <!-- 本地备份按钮 -->
     <div class="sync-actions">
@@ -51,21 +51,21 @@
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
-        导出 JSON
+        {{ $t('sync.exportJson') }}
       </button>
       <button class="sync-btn" @click="doImport">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
         </svg>
-        导入 JSON
+        {{ $t('sync.importJson') }}
       </button>
     </div>
 
     <!-- 分隔线 -->
     <div class="sync-divider">
-      Supabase 设置
-      <a v-if="dashboardUrl" :href="dashboardUrl" target="_blank" class="supabase-link" title="打开 Supabase 控制台" @click.stop>
+      {{ $t('sync.supabaseSettings') }}
+      <a v-if="dashboardUrl" :href="dashboardUrl" target="_blank" class="supabase-link" :title="$t('sync.openDashboard')" @click.stop>
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
           <polyline points="15 3 21 3 21 9"/>
@@ -95,16 +95,18 @@
         />
       </div>
       <button class="sync-btn config-save-btn" @click="doSaveConfig">
-        保存配置
+        {{ $t('sync.saveConfig') }}
       </button>
       <button class="sync-btn config-test-btn" @click="doTest" :disabled="syncState.status === 'syncing'">
-        测试连接
+        {{ $t('sync.testConnection') }}
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, computed, onMounted } from 'vue'
 import { syncState, getSupabaseConfig, saveSupabaseConfig, initSyncState } from '../services/syncState.js'
 import { pushToCloud, pullFromCloud, exportToJsonFile, importFromJsonFile, testConnection } from '../services/syncService.js'
@@ -138,39 +140,39 @@ function showMsg(text, type = 'info', duration = 4000) {
 
 async function doPush() {
   lastAction.value = 'push'
-  showMsg('正在推送...', 'info', 0)
+  showMsg(t('sync.pushing'), 'info', 0)
   const result = await pushToCloud()
   showMsg(result.message, result.success ? 'success' : 'error')
 }
 
 async function doPull() {
   lastAction.value = 'pull'
-  showMsg('正在拉取...', 'info', 0)
+  showMsg(t('sync.pulling'), 'info', 0)
   const result = await pullFromCloud()
   showMsg(result.message, result.success ? 'success' : 'error')
 }
 
 async function doExport() {
   const result = await exportToJsonFile()
-  if (result.message !== '已取消') {
+  if (result.message !== t('common.cancelShort')) {
     showMsg(result.message, result.success ? 'success' : 'error')
   }
 }
 
 async function doImport() {
   const result = await importFromJsonFile()
-  if (result.message !== '已取消') {
+  if (result.message !== t('common.cancelShort')) {
     showMsg(result.message, result.success ? 'success' : 'error')
   }
 }
 
 async function doSaveConfig() {
   if (!configUrl.value || !configKey.value) {
-    showMsg('请填写 URL 和 API Key', 'error')
+    showMsg(t('sync.fillUrlAndKey'), 'error')
     return
   }
   await saveSupabaseConfig(configUrl.value, configKey.value)
-  showMsg('配置已保存', 'success')
+  showMsg(t('sync.configSaved'), 'success')
 }
 
 async function doTest() {
@@ -179,7 +181,7 @@ async function doTest() {
   if (configUrl.value && configKey.value) {
     await saveSupabaseConfig(configUrl.value, configKey.value)
   }
-  showMsg('正在测试...', 'info', 0)
+  showMsg(t('sync.testing'), 'info', 0)
   const result = await testConnection()
   showMsg(result.message, result.success ? 'success' : 'error', 6000)
 }

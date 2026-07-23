@@ -1,0 +1,325 @@
+{
+  "common": {
+    "cancel": "取消",
+    "confirm": "确定",
+    "delete": "删除",
+    "save": "保存",
+    "rename": "重命名",
+    "new": "新建",
+    "color": "颜色",
+    "unnamed": "未命名",
+    "unknownError": "未知错误",
+    "cancelShort": "已取消"
+  },
+  "app": {
+    "brand": "笺记",
+    "tab": {
+      "note": "记事本",
+      "todo": "待办",
+      "todoPage": "待办页",
+      "defaultName": "未命名"
+    },
+    "title": {
+      "cloudSync": "云同步",
+      "themeOpacity": "主题 / 透明度",
+      "alwaysOnTop": "窗口置顶",
+      "classicMode": "经典模式",
+      "minimalMode": "极简模式",
+      "minimize": "最小化",
+      "maximize": "最大化",
+      "hideToTray": "收纳到托盘",
+      "newTab": "新建",
+      "trash": "回收站",
+      "newNotebook": "新建标签",
+      "renameCurrentTab": "重命名当前标签",
+      "deleteCurrentTab": "删除当前标签",
+      "language": "语言"
+    },
+    "ctx": {
+      "unlockTab": "解锁标签页",
+      "lockTab": "锁定标签页",
+      "deleteTab": "删除标签页",
+      "confirmDelete": "确认删除？",
+      "newNotebook": "新建"
+    },
+    "trash": {
+      "subtitle": "30天内可恢复",
+      "restore": "恢复",
+      "permanentDelete": "永久删除",
+      "empty": "回收站是空的"
+    },
+    "modal": {
+      "renameTabTitle": "重命名标签页",
+      "renameTabMessage": "重命名标签页：",
+      "renameTabPlaceholder": "输入新名称...",
+      "deleteTabTitle": "删除标签页",
+      "deleteTabMessage": "确定要删除「{name}」吗？"
+    },
+    "theme": {
+      "light": { "name": "明亮", "desc": "干净白纸" },
+      "dark": { "name": "暗黑", "desc": "深夜模式" },
+      "sepia": { "name": "暖纸", "desc": "米黄纸张" },
+      "mint": { "name": "薄荷", "desc": "清爽护眼" },
+      "sakura": { "name": "樱花", "desc": "温柔不刺眼" },
+      "haze": { "name": "雾蓝", "desc": "晨雾轻柔" },
+      "latte": { "name": "奶咖", "desc": "奶泡柔和" },
+      "espresso": { "name": "暖咖", "desc": "咖啡馆氛围" }
+    },
+    "lang": {
+      "zh": "中文",
+      "en": "English"
+    }
+  },
+  "note": {
+    "sidebar": {
+      "addNew": "新建",
+      "addNewTitle": "新建笔记",
+      "hideTitle": "隐藏侧栏",
+      "showTitle": "显示侧栏"
+    },
+    "item": {
+      "untitled": "无标题",
+      "deleteTitle": "删除"
+    },
+    "empty": {
+      "noMatch": "没有匹配的笔记",
+      "noNotes": "暂无笔记，点击上方「新建」开始记录",
+      "clickToAdd": "点击左侧 + 新建笔记"
+    },
+    "search": {
+      "placeholder": "搜索笔记..."
+    },
+    "ctx": {
+      "unpin": "取消置顶",
+      "pin": "置顶笔记",
+      "moveUpTitle": "上移",
+      "moveDownTitle": "下移",
+      "sortLabel": "排序"
+    },
+    "editor": {
+      "titlePlaceholder": "标题...",
+      "richModeTitle": "富文本模式",
+      "markdownModeTitle": "Markdown 模式",
+      "startTyping": "开始记录..."
+    },
+    "screenshot": {
+      "title": "截图",
+      "direct": "直接截图",
+      "hide": "隐藏后截图",
+      "hotkeyLabel": "快捷键",
+      "hotkeyPlaceholder": "点击输入快捷键..."
+    },
+    "io": {
+      "importTitle": "导入",
+      "exportTitle": "导出",
+      "markdown": "Markdown",
+      "plainText": "纯文本",
+      "htmlPage": "HTML 网页",
+      "wordDoc": "Word 文档",
+      "pdfDoc": "PDF 文档"
+    },
+    "toolbar": {
+      "fontSizeTitle": "字体大小",
+      "fontSizeDefault": "字号",
+      "fontSizeSmall": "小 10px",
+      "fontSizeMedium": "中 13px",
+      "fontSizeNormal": "正常 16px",
+      "fontSizeLarge": "大 18px",
+      "fontSizeXLarge": "超大 24px",
+      "fontSizeXXLarge": "巨大 32px",
+      "fontSizeMax": "特大 48px",
+      "boldTitle": "加粗 (Ctrl+B)",
+      "italicTitle": "斜体 (Ctrl+I)",
+      "underlineTitle": "下划线 (Ctrl+U)",
+      "strikeTitle": "删除线",
+      "clearFormatTitle": "清除格式",
+      "undoTitle": "撤销 (Ctrl+Z)",
+      "redoTitle": "重做 (Ctrl+Y)",
+      "listTitle": "列表",
+      "unorderedList": "无序列表",
+      "orderedList": "有序列表",
+      "insertLinkTitle": "插入链接",
+      "fontColorTitle": "字体颜色",
+      "insertImageTitle": "插入图片",
+      "insertTableTitle": "插入表格"
+    },
+    "markdown": {
+      "tabEdit": "编辑",
+      "tabPreview": "预览",
+      "placeholder": "支持 Markdown 语法...",
+      "imageHint": "图片语法: ![描述](url \"=宽度px 对齐\") 例: ![图](img.png \"=300 center\")"
+    },
+    "footer": {
+      "statsTitle": "字符 / 词 / 行 | 阅读时长",
+      "charUnit": "字",
+      "wordUnit": "词",
+      "lineUnit": "行",
+      "readTimePrefix": "约"
+    },
+    "readTime": {
+      "minute": "{n} 分钟",
+      "hourMinute": "{h} 小时 {m} 分钟",
+      "zero": "0 分钟"
+    },
+    "drag": {
+      "releaseToInsert": "松开即可插入图片"
+    },
+    "image": {
+      "alignLeftTitle": "左对齐",
+      "alignCenterTitle": "居中",
+      "alignRightTitle": "右对齐"
+    },
+    "save": {
+      "saving": "保存中...",
+      "saved": "已保存"
+    },
+    "book": {
+      "defaultName": "记事本 {n}",
+      "defaultName1": "记事本 1"
+    },
+    "preview": {
+      "empty": "无内容"
+    },
+    "link": {
+      "promptUrl": "输入链接 URL:"
+    },
+    "table": {
+      "headerCell": "标题"
+    },
+    "toast": {
+      "screenshotFailed": "截图失败: {error}",
+      "importedFiles": "已导入 {count} 个文件",
+      "importing": "正在导入...",
+      "importedFile": "已导入文件",
+      "importedWord": "已导入 Word 文档",
+      "importWordFailed": "导入 Word 文件失败",
+      "exported": "已导出: {path}",
+      "exportWordFailed": "导出 Word 文件失败",
+      "printWindowBlocked": "无法打开打印窗口，请允许弹窗",
+      "printWindowOpened": "已打开打印/PDF 窗口",
+      "exporting": "正在导出...",
+      "copiedToClipboard": "已复制到剪贴板"
+    },
+    "export": {
+      "defaultTitle": "笔记",
+      "creator": "FloatNote"
+    }
+  },
+  "todo": {
+    "placeholder": {
+      "addTodo": "添加待办...",
+      "addSubtask": "添加子任务...",
+      "noteContent": "输入备注内容..."
+    },
+    "title": {
+      "setDueDate": "设置到期日",
+      "add": "添加",
+      "collapseFilter": "收起筛选",
+      "expandFilter": "展开筛选",
+      "clearAllDone": "清除所有已完成",
+      "uncomplete": "取消完成",
+      "markDone": "标记完成",
+      "addNote": "添加备注",
+      "deleteSubtask": "删除子任务"
+    },
+    "action": {
+      "clearDone": "清除"
+    },
+    "filter": {
+      "label": "筛选"
+    },
+    "note": {
+      "hasNote": "有备注",
+      "label": "备注"
+    },
+    "empty": {
+      "noTodos": "还没有待办事项",
+      "noMatch": "没有匹配的待办"
+    },
+    "context": {
+      "rename": "重命名",
+      "prioritySubtitle": "优先级",
+      "modifyDate": "修改日期",
+      "clearDate": "清除日期",
+      "deleteTask": "删除任务"
+    },
+    "priority": {
+      "high": "高",
+      "mid": "中",
+      "low": "低"
+    },
+    "filterStatus": {
+      "all": "全部",
+      "allShort": "全",
+      "pending": "待完成",
+      "pendingShort": "待",
+      "done": "已完成",
+      "doneShort": "完"
+    },
+    "list": {
+      "defaultName": "待办页 1",
+      "newName": "待办页 {n}"
+    },
+    "date": {
+      "overdue": "已过期",
+      "dueToday": "今天到期",
+      "dueTomorrow": "明天到期",
+      "daysRemaining": "还剩 {n} 天"
+    }
+  },
+  "sync": {
+    "title": "云同步",
+    "pushToCloud": "推送到云端",
+    "pullFromCloud": "从云端拉取",
+    "retry": "重试",
+    "localBackup": "本地备份",
+    "exportJson": "导出 JSON",
+    "importJson": "导入 JSON",
+    "supabaseSettings": "Supabase 设置",
+    "openDashboard": "打开 Supabase 控制台",
+    "saveConfig": "保存配置",
+    "testConnection": "测试连接",
+    "pushing": "正在推送...",
+    "pulling": "正在拉取...",
+    "testing": "正在测试...",
+    "fillUrlAndKey": "请填写 URL 和 API Key",
+    "configSaved": "配置已保存",
+    "notConfigured": "请先配置 Supabase URL 和 API Key",
+    "notConfiguredShort": "请先填写 URL 和 API Key",
+    "pushSuccess": "推送成功",
+    "pushFailed": "推送失败: {error}",
+    "pullSuccess": "拉取成功 (云端时间: {time})",
+    "pullFailed": "拉取失败: {error}",
+    "noCloudData": "云端暂无数据，请先点击「推送到云端」",
+    "invalidCloudFormat": "云端数据格式无效",
+    "restoredItems": "已恢复 {count} 项数据",
+    "invalidFormat": "数据格式无效：缺少 data 字段",
+    "invalidFormatNotBackup": "数据格式无效：缺少 data 字段\n这不是 FloatNote 的备份文件",
+    "exportTitle": "导出备份文件",
+    "jsonFilter": "JSON 文件",
+    "importTitle": "选择备份文件",
+    "exportedTo": "已导出到: {path}",
+    "exportFailed": "导出失败: {error}",
+    "importFailed": "导入失败: {error}",
+    "invalidJson": "文件格式错误：不是有效的 JSON",
+    "importConfirmTitle": "导入将覆盖当前所有本地数据！\n\n备份时间: {time}\n数据项数: {count} 项\n\n确定要继续吗？",
+    "tableNotExist": "连接成功，但 app_data 表不存在。\n请在 Supabase SQL Editor 中执行建表 SQL。",
+    "apiKeyInvalid": "API Key 无效或权限不足。\n请检查 Key 是否正确，或尝试重新生成。",
+    "connectionOk": "连接正常！尚未推送过数据，点击「推送到云端」即可自动创建。",
+    "connectionOkWithTime": "连接正常！上次更新: {time}",
+    "connectionFailed": "连接失败: {error}",
+    "unknownTime": "未知",
+    "noTime": "无"
+  },
+  "screenshot": {
+    "loading": "加载截图...",
+    "copy": "复制",
+    "copyTitle": "复制 (Enter)",
+    "cancelTitle": "取消 (Esc)",
+    "hint": "拖拽选择截图区域 · Esc 取消"
+  },
+  "date": {
+    "today": "今天",
+    "yesterday": "昨天"
+  }
+}
