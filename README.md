@@ -11,7 +11,7 @@
     <img src="https://img.shields.io/badge/Tauri-2.0-24C8D8?style=flat-square&logo=tauri" alt="tauri">
     <img src="https://img.shields.io/badge/Vue-3.0-4FC08D?style=flat-square&logo=vue.js" alt="vue">
   </p>
-  <p>[English](README.md) · [简体中文](README.zh-CN.md)</p>
+  <p><a href="README.md">English</a> · <a href="README.zh-CN.md">简体中文</a></p>
   <p>
     <a href="https://github.com/flyanx/FloatNote/releases"><b>Download</b></a> ·
     <a href="#features"><b>Features</b></a> ·
