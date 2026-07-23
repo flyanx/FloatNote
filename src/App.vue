@@ -48,9 +48,10 @@
               </div>
             </div>
             <div class="about-body">
-              <p class="about-desc">{{ currentLang === 'zh'
-                ? '轻量级 Windows 桌面便签笔记，集记事本、待办事项、屏幕截图、多格式导入导出于一体。基于 Tauri 2 + Vue 3 + Rust 构建。'
-                : 'A lightweight Windows desktop note-taking app with notebooks, todos, screenshots, and multi-format import/export. Built with Tauri 2 + Vue 3 + Rust.' }}</p>
+              <p class="about-desc">
+                轻量级 Windows 桌面便签笔记，集记事本、待办事项、屏幕截图、多格式导入导出于一体。基于 Tauri 2 + Vue 3 + Rust 构建。<br>
+                A lightweight Windows desktop note-taking app with notebooks, todos, screenshots, and multi-format import/export. Built with Tauri 2 + Vue 3 + Rust.
+              </p>
               <div class="about-meta">
                 <div class="about-meta-row">
                   <span class="about-label">{{ currentLang === 'zh' ? '技术栈' : 'Tech' }}</span>
